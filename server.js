@@ -16,14 +16,17 @@ var mysql=require('mysql');
 var players={};
 //var mapas=[];
 var gameState={
-  map:{},
+  maps:{},
 	players: {},
 	horario:'day',
 	//snow-rain-sunny
 	clima: 'sunny'
 };
-var newMap=gameState.map=maps.getMap(1);
-console.log(newMap);
+//var newMap=maps.getMap(1);
+//gameState.maps[newMap.mapcode]=newMap;
+//console.log(gameState.maps[1]); 
+//---->gameState.maps['1']-->Bota undefined si no existe
+//---->gameState.maps[1]-->Bota undefined si no existe
 var tiempo={
 	hora: null,
 	minuto: null,
@@ -490,6 +493,20 @@ function LoginSQL(conexion,data,SockID,socketGlobal){
       playerGame.categoria=player.categoria;
 
 			players[SockID]=playerServer;
+      //var newMap=maps.getMap(1);
+      //gameState.maps[newMap.mapcode]=newMap;
+      //console.log(gameState.maps[1]); 
+      //---->gameState.maps['1']-->Bota undefined si no existe
+      //---->gameState.maps[1]-->Bota undefined si no existe
+      //console.log(result[0].mapCode);
+      
+      if(gameState.maps[result[0].mapCode]==undefined){
+        gameState.maps[result[0].mapCode]=maps.getMap(result[0].mapCode);//MAPA CREADO
+        gameState.maps[result[0].mapCode].players[result[0].user_id]=playerGame;//PONIENDO AL  PLAYER EN MAPA
+        
+      }
+      else gameState.maps[result[0].mapCode].players[result[0].user_id]=playerGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
+      
 			gameState.players[result[0].user_id]=playerGame;
       //---------->se emite en la funcion teammonterserver para poder emitir junto con el team monster
       socketGlobal.emit("loginSuccess",playerGame);

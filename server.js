@@ -33,10 +33,10 @@ var tiempo={
 	segundo: null
 };
 //OBJETOS INGAME
-function Player(id,userID,currentMap){
+function Player(id,userID,mapCode){
 	this.id=id;
 	this.userID=userID;
-	this.currentMap=currentMap;
+	this.mapCode=mapCode;
   this.teamMonsters={};
 }
  
@@ -260,7 +260,7 @@ io.on('connection', function(socket){
 		startPlayer(data,id,socketGlobal);
 	});
   socket.on('newMsg',(data)=>{
-      var userN = gameState.players[players[id].userID].username;
+      var userN = gameState.maps[players[id].mapCode].players[players[id].userID].username;
       var msg = data.msg;
       var date=new Date();
       var fecha={
@@ -268,8 +268,8 @@ io.on('connection', function(socket){
         minuto:date.getMinutes(),
         dia: basicFunctions.NameDay(date.getDay())
       } 
-      socket.broadcast.emit('newMsg', {sender:userN,nivel:gameState.players[players[id].userID].categoria,msg:msg,date:fecha});
-      socket.emit('newMsg', {sender:userN,nivel:gameState.players[players[id].userID].categoria,msg:msg,date:fecha});
+      socket.broadcast.emit('newMsg', {sender:userN,nivel:gameState.maps[players[id].mapCode].players[players[id].userID].categoria,msg:msg,date:fecha});
+      socket.emit('newMsg', {sender:userN,nivel:gameState.maps[players[id].mapCode].players[players[id].userID].categoria,msg:msg,date:fecha});
     
 	});
   socket.on('action',(data)=>{
@@ -285,7 +285,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       TeamMonsterServer(socketGlobal,id,conexion,ap);
     }
 	});
@@ -294,7 +294,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       AllMonsterServer(socketGlobal,id,conexion,ap);
     }
 	});
@@ -304,7 +304,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       MonsterProfileServer(socketGlobal,id,conexion,ap,data);
     }
 	});
@@ -313,7 +313,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       bagServer(socketGlobal,id,conexion,ap);
     }
 	});
@@ -322,7 +322,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       evolveServer(socketGlobal,id,conexion,ap,data.monid);
     }
 	});
@@ -331,7 +331,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       evolveServerStart(socketGlobal,id,conexion,ap,data.monid,data.monnum);
     }
 	});
@@ -340,7 +340,7 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       wildMonsterServer(socketGlobal,id,conexion,ap);
     }
 	});
@@ -349,8 +349,8 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      gameState.players[players[id].userID].inBattle=true;
-      var ap=gameState.players[players[id].userID];
+      gameState.maps[players[id].mapCode].players[players[id].userID].inBattle=true;
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       battleWildMonsterServer(socketGlobal,id,conexion,ap);
     }
 	});
@@ -362,8 +362,8 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=gameState.players[players[id].userID];
-      gameState.players[players[id].userID].inBattle=true;
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
+      gameState.maps[players[id].mapCode].players[players[id].userID].inBattle=true;
       startPlayerWildBattle(data,socketGlobal,id,conexion,ap);
     }
 	});
@@ -372,8 +372,8 @@ io.on('connection', function(socket){
   socket.on('disconnect',()=>{
     //console.log("user disconnected");
     if(players[id]!=undefined){
-      socket.broadcast.emit('playerExit',gameState.players[players[id].userID]);
-			delete gameState.players[players[id].userID];
+      socket.broadcast.emit('playerExit',gameState.maps[players[id].mapCode].players[players[id].userID]);
+			delete gameState.maps[players[id].mapCode].players[players[id].userID];
 			DeletePlayerInRoom(players[id]);
 		}
   });
@@ -446,17 +446,17 @@ function UpdatePlayer(data,socketGlobal){
   */
   if(data.type=="movement"){
     for(var id in players){
-      for(var userID in gameState.players){
+      for(var userID in gameState.maps[players[id].mapCode].players){
         //console.log(userID);
         if(players[id].userID==userID){
-          gameState.players[userID].userX=data.position.x;
-          gameState.players[userID].userY=data.position.y;
-          gameState.players[userID].userZ=data.position.z;
-          gameState.players[userID].userRotX=data.rotation.x;
-          gameState.players[userID].userRotY=data.rotation.y;
-          gameState.players[userID].userRotZ=data.rotation.z;
-          gameState.players[userID].currentState=data.state;
-          socketGlobal.broadcast.emit('playerAction',{player:gameState.players[userID],type:'movement',state:gameState.players[userID].currentState});
+          gameState.maps[players[id].mapCode].players[userID].userX=data.position.x;
+          gameState.maps[players[id].mapCode].players[userID].userY=data.position.y;
+          gameState.maps[players[id].mapCode].players[userID].userZ=data.position.z;
+          gameState.maps[players[id].mapCode].players[userID].userRotX=data.rotation.x;
+          gameState.maps[players[id].mapCode].players[userID].userRotY=data.rotation.y;
+          gameState.maps[players[id].mapCode].players[userID].userRotZ=data.rotation.z;
+          gameState.maps[players[id].mapCode].players[userID].currentState=data.state;
+          socketGlobal.broadcast.emit('playerAction',{player:gameState.maps[players[id].mapCode].players[userID],type:'movement',state:gameState.maps[players[id].mapCode].players[userID].currentState});
         }
       }
     }
@@ -507,7 +507,7 @@ function LoginSQL(conexion,data,SockID,socketGlobal){
       }
       else gameState.maps[result[0].mapCode].players[result[0].user_id]=playerGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
       
-			gameState.players[result[0].user_id]=playerGame;
+			//gameState.players[result[0].user_id]=playerGame;
       //---------->se emite en la funcion teammonterserver para poder emitir junto con el team monster
       socketGlobal.emit("loginSuccess",playerGame);
       socketGlobal.emit("uniqueID",SockID);
@@ -580,9 +580,9 @@ function createTrainerMonsterStarter(conexion,data,SockID,socketGlobal){
             if(result!==undefined){
               var monstersArr=[]; 
               monstersArr[0]=new Monster(null,data.starter,monsters.monster(data.starter).monstername,0,players[SockID].userID,players[SockID].userID,1,monsters.monster(data.starter).type_1,monsters.monster(data.starter).type_2,0,1);
-              gameState.players[players[SockID].userID].personaje=data.personaje;
+              gameState.maps[players[SockID].mapCode].players[players[SockID].userID].personaje=data.personaje;
               infoTM="Cambios realizados con exito";
-              socketGlobal.emit("crearPlayerSucess",{info:infoTM,updatePlayer:gameState.players[players[SockID].userID]});
+              socketGlobal.emit("crearPlayerSucess",{info:infoTM,updatePlayer:gameState.maps[players[SockID].mapCode].players[players[SockID].userID]});
             } 
             else{
               infoTM="Error no se puede realizar esta accion, contacta con un ADMINISTRADOR";
@@ -790,7 +790,7 @@ function battleWildMonsterServer(socketGlobal,id,conexion,arrayPlayer){
     if(result!=undefined){
       var data={num:result[0].temp_mon_num,special:result[0].temp_mon_special,name:result[0].temp_mon_name,catchable:result[0].catchable};
       socketGlobal.emit("battleWildMonInfo",{dataWild:data,inBattle:true});
-      socketGlobal.broadcast.emit('OtherPlayerInBattle',{playerID:gameState.players[players[id].userID].userID,inBattle:true});
+      socketGlobal.broadcast.emit('OtherPlayerInBattle',{playerID:gameState.maps[players[id].mapCode].players[players[id].userID].userID,inBattle:true});
     }
     else{
       var error="Hubo un error al entrar en batalla con wild monster contacta con un ADMINISTRADOR";
@@ -825,15 +825,15 @@ function startPlayerWildBattle(data,socketGlobal,id,conexion,ap){
 //########################################
 //########################################
 function startPlayer(data,id,socketGlobal){
-  gameState.players[players[id].userID].userID==players[id].userID;
-  gameState.players[players[id].userID].userX=data.position.x;
-  gameState.players[players[id].userID].userY=data.position.y;
-  gameState.players[players[id].userID].userZ=data.position.z;
-  gameState.players[players[id].userID].userRotX=data.rotation.x;
-  gameState.players[players[id].userID].userRotY=data.rotation.y;
-  gameState.players[players[id].userID].userRotZ=data.rotation.z;
-  socketGlobal.emit("playerStart",gameState.players);
-  socketGlobal.broadcast.emit('playerJoined', gameState.players[players[id].userID]);
+  gameState.maps[players[id].mapCode].players[players[id].userID].userID==players[id].userID;
+  gameState.maps[players[id].mapCode].players[players[id].userID].userX=data.position.x;
+  gameState.maps[players[id].mapCode].players[players[id].userID].userY=data.position.y;
+  gameState.maps[players[id].mapCode].players[players[id].userID].userZ=data.position.z;
+  gameState.maps[players[id].mapCode].players[players[id].userID].userRotX=data.rotation.x;
+  gameState.maps[players[id].mapCode].players[players[id].userID].userRotY=data.rotation.y;
+  gameState.maps[players[id].mapCode].players[players[id].userID].userRotZ=data.rotation.z;
+  socketGlobal.emit("playerStart",gameState.maps[players[id].mapCode].players);
+  socketGlobal.broadcast.emit('playerJoined', gameState.maps[players[id].mapCode].players[players[id].userID]);
 }
 
 function ValueIsString(variable){

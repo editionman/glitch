@@ -341,7 +341,8 @@ io.on('connection', function(socket){
     }
     else {
       var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
-      wildMonsterServer(socketGlobal,id,conexion,ap);
+      var map=gameState.maps[players[id].mapCode];
+      wildMonsterServer(socketGlobal,id,conexion,ap,data,map);
     }
 	});
   socket.on('battleWildMonster',(data)=>{
@@ -349,9 +350,8 @@ io.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      gameState.maps[players[id].mapCode].players[players[id].userID].inBattle=true;
       var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
-      battleWildMonsterServer(socketGlobal,id,conexion,ap);
+      battleWildMonsterServer(socketGlobal,id,conexion,ap,data);
     }
 	});
   //##############################################################################################
@@ -363,8 +363,9 @@ io.on('connection', function(socket){
     }
     else {
       var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
+      var map=gameState.maps[players[id].mapCode];
       gameState.maps[players[id].mapCode].players[players[id].userID].inBattle=true;
-      startPlayerWildBattle(data,socketGlobal,id,conexion,ap);
+      startPlayerWildBattle(data,socketGlobal,id,conexion,ap,map);
     }
 	});
   
@@ -372,9 +373,12 @@ io.on('connection', function(socket){
   socket.on('disconnect',()=>{
     //console.log("user disconnected");
     if(players[id]!=undefined){
+      var spawns=gameState.maps[players[id].mapCode].spawnMonsters;
+      var ap=gameState.maps[players[id].mapCode].players[players[id].userID];
       socket.broadcast.emit('playerExit',gameState.maps[players[id].mapCode].players[players[id].userID]);
 			delete gameState.maps[players[id].mapCode].players[players[id].userID];
 			DeletePlayerInRoom(players[id]);
+      WildMonsterBattleOff(socketGlobal,spawns,ap);
 		}
   });
 });
@@ -503,10 +507,10 @@ function LoginSQL(conexion,data,SockID,socketGlobal){
       if(gameState.maps[result[0].mapCode]==undefined){
         gameState.maps[result[0].mapCode]=maps.getMap(result[0].mapCode);//MAPA CREADO
         gameState.maps[result[0].mapCode].players[result[0].user_id]=playerGame;//PONIENDO AL  PLAYER EN MAPA
-        
       }
       else gameState.maps[result[0].mapCode].players[result[0].user_id]=playerGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
       
+      //console.log(gameState.maps[result[0].mapCode].spawnMonsters.spawn1.monsters);
 			//gameState.players[result[0].user_id]=playerGame;
       //---------->se emite en la funcion teammonterserver para poder emitir junto con el team monster
       socketGlobal.emit("loginSuccess",playerGame);
@@ -758,39 +762,61 @@ function evolveServerStart(socketGlobal,id,conexion,arrayPlayer,monsterid,monste
 		}
 	});
 }
-function wildMonsterServer(socketGlobal,id,conexion,arrayPlayer){
-  var itemArr=[];
-  var tempMonNum=basicFunctions.wildMonsterRandom();
-  var tempMon=monsters.monster(tempMonNum);
-  var tempSpecial=basicFunctions.probabilidadShiny();
-  var tempCatchable=basicFunctions.probabilidadCatch();
-  var sqlWildDelete = "DELETE FROM temp_monsters WHERE user_owner='"+arrayPlayer.userID+"'";
-  conexion.query(sqlWildDelete, function (err, result) {
-    if(result!=undefined){
-      var sqlWildMon = "INSERT INTO temp_monsters (temp_mon_id, temp_mon_name, temp_mon_num, temp_mon_special, user_owner, catchable) VALUES (NULL, '"+tempMon.monstername+"', '"+tempMonNum+"', '"+tempSpecial+"', '"+arrayPlayer.userID+"', '"+tempCatchable+"')";
-      conexion.query(sqlWildMon, function (err, result) {
-        if(result!=undefined){
-          socketGlobal.emit("wildMonInfo",{special:tempSpecial,num:tempMonNum,name:tempMon.monstername});
+
+
+function wildMonsterServer(socketGlobal,id,conexion,arrayPlayer,index,map){
+  var mon=0;
+    Object.keys(map.spawnMonsters).forEach((spawns)=>{
+      if(map.spawnMonsters[spawns].monsters[index]===undefined){
+        mon=false;//NO EXISTE MONSTER EN EL MAPA DEL PLAYER
+      }
+      else{
+        //return true;//SI EXISTE MONSTER EN EL MAPA DEL PLAYER
+        map.spawnMonsters[spawns].monsters[index].rival=arrayPlayer.username;
+        mon=map.spawnMonsters[spawns].monsters[index];
+      }
+    });
+  if(mon===false || mon===0)console.log("No se encontró monster en el mapa");
+  else{
+    var dataUser={special:mon.especial,num:mon.monid,name:mon.name,level:mon.level,index:index};
+    var dataAll={index:index,state:"ocupado",x:arrayPlayer.userX,y:arrayPlayer.userY,z:arrayPlayer.userZ};
+    socketGlobal.emit("wildMonInfo",dataUser);
+    socketGlobal.broadcast.emit('wildMonUpdate',dataAll);
+  }
+}
+
+
+function battleWildMonsterServer(socketGlobal,id,conexion,arrayPlayer,index){
+  //---------------BUSQUEDA DEL MONSTER  EN MAPA
+      Object.keys(gameState.maps[players[id].mapCode].spawnMonsters).forEach((spawns)=>{
+        var mon=gameState.maps[players[id].mapCode].spawnMonsters[spawns].monsters[index];
+        mon.inBattle=true;
+        if(mon===undefined){
+          var error="No se encontró con wild monster contacta con un ADMINISTRADOR";
+          socketGlobal.emit("battleWildMonError",error);
         }
         else{
-          var error="No se encontro wild monster contacta con un ADMINISTRADOR";
-          socketGlobal.emit("wildMonError",error);
+          //return true;//SI EXISTE MONSTER EN EL MAPA DEL PLAYER
+          if(mon.rival!==arrayPlayer.username){
+            var error="No eres el rival del wild monster contacta con un ADMINISTRADOR";
+            socketGlobal.emit("battleWildMonError",error);
+          }
+          else{
+            var data={num:mon.monid,special:mon.especial,name:mon.name,level:mon.level};
+            socketGlobal.emit("battleWildMonInfo",{dataWild:data,inBattle:true});//cambiar dataWild
+            socketGlobal.broadcast.emit('OtherPlayerInWildBattle',{playerID:gameState.maps[players[id].mapCode].players[players[id].userID].userID,inBattle:true,index:index});
+            //enviar actualizacion a todos los jugadores de que encontró batalla
+          }
         }
-      });
-    }
-    else{
-      var error="Error al buscar un wild monster contacta con un ADMINISTRADOR";
-      socketGlobal.emit("wildMonError",error);
-    }
-  });
-}
-function battleWildMonsterServer(socketGlobal,id,conexion,arrayPlayer){
+    });
+      //---FIN DE BUSQUEDA DEL MONSTER EN MAPA
+  /*OLD VERSION
   var sqlBattleWildMon = "SELECT * FROM temp_monsters WHERE user_owner='"+arrayPlayer.userID+"';";
   conexion.query(sqlBattleWildMon, function (err, result) {
     if(result!=undefined){
       var data={num:result[0].temp_mon_num,special:result[0].temp_mon_special,name:result[0].temp_mon_name,catchable:result[0].catchable};
       socketGlobal.emit("battleWildMonInfo",{dataWild:data,inBattle:true});
-      socketGlobal.broadcast.emit('OtherPlayerInBattle',{playerID:gameState.maps[players[id].mapCode].players[players[id].userID].userID,inBattle:true});
+      socketGlobal.broadcast.emit('OtherPlayerInWildBattle',{playerID:gameState.maps[players[id].mapCode].players[players[id].userID].userID,inBattle:true,index:index});
     }
     else{
       var error="Hubo un error al entrar en batalla con wild monster contacta con un ADMINISTRADOR";
@@ -798,19 +824,29 @@ function battleWildMonsterServer(socketGlobal,id,conexion,arrayPlayer){
     }
   });
   //SELECT * FROM temp_monsters WHERE user_owner='52'
+  */
 }
 //##############################################################
 //##############################################################
 //####################ESCENA WILDBATTLEMONSTER##################
 //##############################################################
 //##############################################################
-function startPlayerWildBattle(data,socketGlobal,id,conexion,ap){
+function startPlayerWildBattle(data,socketGlobal,id,conexion,ap,map){
   sqlFuncs.teamSQL(id,conexion,ap).then((teammon)=>{
-    sqlFuncs.SelectWildMonSQL(id,conexion,ap).then((wildmon)=>{
-      socketGlobal.emit("WildBattleStart",{team:teammon,wild:wildmon});
+    var wildmon;
+    Object.keys(map.spawnMonsters).forEach((spawns)=>{
+      for(var index in map.spawnMonsters[spawns].monsters){
+        if(map.spawnMonsters[spawns].monsters[index]!==undefined && map.spawnMonsters[spawns].monsters[index].rival===ap.username){
+          wildmon=map.spawnMonsters[spawns].monsters[index];
+        }//ESTE PLAYER NO ES DUEÑO DE ESTE WILD
+        //else wildmon=map.spawnMonsters[spawns].monsters[index];//ES MUY PROBABLE QUE SI SEA DUEÑO DE ESTE WILD
+      }
+      if(wildmon === undefined || wildmon===false || wildmon===0)console.log("Error con el monster contacta a un ADMINISTRADOR");
+      else{
+        socketGlobal.emit("WildBattleStart",{team:teammon,wild:wildmon});
+      }
     });
   });
-  
 }
 
 
@@ -832,7 +868,8 @@ function startPlayer(data,id,socketGlobal){
   gameState.maps[players[id].mapCode].players[players[id].userID].userRotX=data.rotation.x;
   gameState.maps[players[id].mapCode].players[players[id].userID].userRotY=data.rotation.y;
   gameState.maps[players[id].mapCode].players[players[id].userID].userRotZ=data.rotation.z;
-  socketGlobal.emit("playerStart",gameState.maps[players[id].mapCode].players);
+  socketGlobal.emit("playerStart",{players:gameState.maps[players[id].mapCode].players,monsters:gameState.maps[players[id].mapCode].spawnMonsters});
+  //socketGlobal.emit("spawnMonster")
   socketGlobal.broadcast.emit('playerJoined', gameState.maps[players[id].mapCode].players[players[id].userID]);
 }
 
@@ -857,20 +894,30 @@ function nivelMonster(exp){
 }
 //Desconectar player en room
 function DeletePlayerInRoom(user){
-	//borrar player del room
-  /*
-	for(i=0;i<mapas[user.currentMap].players.length;i++){
-		if(mapas[user.currentMap].players[i].userID==user.userID){
-			mapas[user.currentMap].players.splice(i,1);
-		}
-	}
-  */
-	//borrar player del servidor
 	Object.keys(players).forEach((id)=>{
 		if(players[id].userID==user.userID){
 			delete players[id];
 		}
 	});
+}
+function WildMonsterBattleOff(socketGlobal,spawns,ap){
+  var wildmon;
+  var indx;
+  Object.keys(spawns).forEach((spawn)=>{
+      for(var index in spawns[spawn].monsters){
+        if(spawns[spawn].monsters[index]!==undefined && spawns[spawn].monsters[index].rival===ap.username){
+          wildmon=spawns[spawn].monsters[index];
+          indx=index;
+        }
+      }
+      if(wildmon === undefined || wildmon===false || wildmon===0);//console.log("No estuvo con ningun monster");
+      else{
+        wildmon.rival=undefined;
+        wildmon.inBattle=false;
+        var dataAll={index:indx,state:"libre",x:ap.userX,y:ap.userY,z:ap.userZ};
+        socketGlobal.broadcast.emit('wildMonUpdate',dataAll);
+      }
+    });
 }
 //setInterval(function(){console.log(Object.keys(gameState.players).length);},3000);
 //Object.keys(objeto).length)--------------------------->longitud de un object
@@ -881,5 +928,4 @@ function DeletePlayerInRoom(user){
 //ATRIBUTOS DE MONSTERS
 //######################################
 //##########################
-
 

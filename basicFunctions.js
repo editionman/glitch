@@ -43,7 +43,7 @@ var exports = module.exports = {
     }
     return result.toString();
   },
-  wildMonsterRandom:function(){
+  wildMonsterRandom:function(){//buen sistema para pelear con un monster aleatorio de entre un array de monsters
     var monstersRandom=[0,1,4,7,10];
     var max=monstersRandom.length-1;
     var min=1
@@ -54,7 +54,7 @@ var exports = module.exports = {
     return probabilidad_1deMAX(8192);//8192
   },
   //NO USADO AUN
-  probabilidadSpecial:function(categoria,vip){//categoria es para ver rareza del monster,vip es para aumentar la posibilidad de encuentro
+  probabilidadShiny2:function(categoria,vip){//categoria es para ver rareza del monster,vip es para aumentar la posibilidad de encuentro
     var isShiny=Prob_Shiny();
     if(isShiny==1) return 1;
     else{
@@ -64,8 +64,26 @@ var exports = module.exports = {
     }
     return probabilidad_1deMAX(8192);//8192
   },
+  probabilidadEncuentro:function(percent){//0%-100%
+    return Percentage(percent);//return true or false
+  },
   probabilidadCatch:function(){//ESTE CREO QUE LO QUITARE!
     return probabilidad_1deMAX(5);//8192
+  },
+  findMonsterOnMap:function(index,map){//ESTE CREO QUE LO QUITARE!
+    var mon=0;
+    Object.keys(map.spawnMonsters).forEach((spawns)=>{
+      if(map.spawnMonsters[spawns].monsters[index]===undefined){
+        return false;//NO EXISTE MONSTER EN EL MAPA DEL PLAYER
+      }
+      else{
+        return mon;
+        //return "existe";
+        //return true;//SI EXISTE MONSTER EN EL MAPA DEL PLAYER
+        var mon=map.spawnMonsters[spawns].monsters[index];
+        return mon;
+      }
+    });
   },
   
 

@@ -2,6 +2,7 @@ var exports = module.exports = {
   monster:function(MonsterNum){
     var mon={
         monstername:"In Development",
+        categoria:"0",
         lvlmin:1,
         lvlmax:100,
         type_1:11,
@@ -29,6 +30,7 @@ var exports = module.exports = {
     if(MonsterNum===1){
       mon ={
         monstername:"Bulbasaur",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:12,
@@ -73,6 +75,7 @@ var exports = module.exports = {
     if(MonsterNum===2){
       mon ={
         monstername:"Ivysaur",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:12,
@@ -115,6 +118,7 @@ var exports = module.exports = {
     if(MonsterNum===3){
       mon ={
         monstername:"Venusaur",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:12,
@@ -158,6 +162,7 @@ var exports = module.exports = {
     if(MonsterNum===4){
       mon ={
         monstername:"Charmander",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:7,
@@ -200,6 +205,7 @@ var exports = module.exports = {
     if(MonsterNum===5){
       mon ={
         monstername:"Charmeleon",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:7,
@@ -240,6 +246,7 @@ var exports = module.exports = {
     if(MonsterNum===6){
       mon ={
         monstername:"Charizard",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:7,
@@ -285,6 +292,7 @@ var exports = module.exports = {
     if(MonsterNum===7){
       mon ={
         monstername:"Squirtle",
+        categoria:"A|",
         lvlmin:1,
         lvlmax:100,
         type_1:2,
@@ -329,6 +337,7 @@ var exports = module.exports = {
     if(MonsterNum===8){
       mon ={
         monstername:"Wartortle",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:2,
@@ -371,6 +380,7 @@ var exports = module.exports = {
     if(MonsterNum===9){
       mon ={
         monstername:"Blastoise",
+        categoria:"A",
         lvlmin:1,
         lvlmax:100,
         type_1:2,

@@ -1,18 +1,36 @@
 //itemStorage....contenido|||itemid,qty
 var basicFunctions = require("./basicFunctions.js");
 var monsters = require("./monsters.js");
+var uuid=require("uuid");
+//console.log(uuid.v4());
 //OBJECTS
 function Mon(name,monid,especial,level,inBattle,rival){
+  //this.id=0;
   this.name=name;
 	this.monid=monid;
 	this.especial=especial;
   this.level=level;
 	this.inBattle=inBattle;
   this.rival=rival;
+  //Math.round(5+(nivel/100*((base*2)+iv+(ev/4)))*(1+naturaleza));
+  //monsters.monster(monid).stats.ps;
+  
+  this.ps=Math.round(10+(level/100*((monsters.monster(monid).stats.ps*2)+31+(0/4)))+level);
+  this.currHealth=this.ps;
+  this.atk=Math.round(5+(level/100*((monsters.monster(monid).stats.atk*2)+31+(0/4)))*(1+0));
+  this.def=Math.round(5+(level/100*((monsters.monster(monid).stats.def*2)+31+(0/4)))*(1+0));;
+  this.atk_es=Math.round(5+(level/100*((monsters.monster(monid).stats.atk_es*2)+31+(0/4)))*(1+0));
+  this.def_es=Math.round(5+(level/100*((monsters.monster(monid).stats.def_es*2)+31+(0/4)))*(1+0));;
+  this.velocidad=Math.round(5+(level/100*((monsters.monster(monid).stats.velocidad*2)+31+(0/4)))*(1+0));;
+  this.type_1=monsters.monster(monid).type_1;
+  this.type_2=monsters.monster(monid).type_1;
+  this.altura=monsters.monster(monid).altura;
+  this.genero=basicFunctions.NumeroAleatorio(0,1);//0 hembra 1 macho
   this.x=0;
   this.y=0;
   this.z=0;
 }
+
 //EXPORT---------------------
 var exports = (module.exports = {
   getMap: function(mapid) {
@@ -22,6 +40,8 @@ var exports = (module.exports = {
       mapcode: 0,
       spawnMonsters: {
           spawn1: {
+            arrMon:[1,4,7],
+            arrlvl:[1,7],
             monsters: spawnMonstersFunc([0,0,0],0,[0,0]),//invocara entre 3 monsters de id 0 la cantidad de 0, de level 0 al 0
           },
         },
@@ -39,6 +59,8 @@ var exports = (module.exports = {
         mapcode: 1,
         spawnMonsters: {
           spawn1: {
+            arrMon:[1,4,7],
+            arrlvl:[1,7],
             monsters: spawnMonstersFunc([1,4,7],5,[1,7]),//invocara 3 monsters bulbasaur,charmander,squirtle, de level 1 al 7
           },
         },
@@ -70,7 +92,38 @@ var exports = (module.exports = {
     //FIN DE MAP######################################################
   },
   getBattleMap: function(mapid) {},
+  getMonstersMap: function(arrMon,qty,arrLvl) {
+    spawnMonstersFunc(arrMon,qty,arrLvl)
+  },
 }); //fin del export
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -122,7 +175,7 @@ function foundMonster(array,arrLevel){
 }
 function crearMonsterWild(name,monInfo,numMon,arrLevel){
   var especial=basicFunctions.probabilidadShiny();
-  var newMon=new Mon(name,numMon,especial,lvlMonsterMap(arrLevel),false,undefined);
+  var newMon=new Mon(name,numMon,especial,lvlMonsterMap(arrLevel),false,null);
   return newMon;
 }
 function lvlMonsterMap(arrLevel){

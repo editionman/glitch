@@ -89,7 +89,7 @@ var exports = module.exports = {
 
 //STATISTICS PROMEDIAL
   StatPromedio: function(data,stat){
-    var nivel=nivelMonster(data.exp);
+    var nivel=data.nivel;//nivelMonster(data.exp);
     var base;
     var iv;
     var ev;

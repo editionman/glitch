@@ -10,7 +10,7 @@ var roomsGame={};
 //test.run("hola"); 
 //var quest = require("./lib/quest.js");
 //var test=new quest(1,"Ed");
-//console.log(test);
+//console.log(test); 
 
 // where your node app starts
 var basicFunctions = require("./basicFunctions.js");
@@ -343,7 +343,7 @@ io.sockets.on('connection', function(socket){
   //En escena NPC
   //##############################################################################################
   socket.on('npcSelect',(data)=>{
-    roomsGame[socketGlobal.mapCode].NPCDialog(socketGlobal,data.npcID);
+    roomsGame[socketGlobal.mapCode].NPCDialog(conexion,socketGlobal,data.npcID);
 	});
   //##############################################################################################
   //En escena WILDBATTLE

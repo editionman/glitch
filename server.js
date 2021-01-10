@@ -10,7 +10,7 @@ var roomsGame={};
 //test.run("hola"); 
 //var quest = require("./lib/quest.js");
 //var test=new quest(1,"Ed");
-//console.log(test); 
+//console.log(test);
 
 // where your node app starts
 var basicFunctions = require("./basicFunctions.js");

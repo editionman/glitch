@@ -1,4 +1,5 @@
 var basicFunctions = require("./basicFunctions.js");
+var utils = require("./lib/utils.js");
 var monsters = require("./monsters.js");
 var moves = require("./moves.js");
 var starters={1:"Bulbasaur",4:"Charmander",7:"Squirtle"}
@@ -69,7 +70,7 @@ var exports = module.exports = {
         conexion.query(sql, function (err, result) {
           if(result!==undefined && result.length==0){//No hay starter
             //los datos que se inyectan al servidor son----->                                                                                                                                                                                                                                                           monster_id  monster_num              monster_name                      special    user_current_owner      user_owner            in_team-genero          type_1                                 type_2                       exp       naturaleza                      habilidad                                                              mov_1                                                  mov_2                                                  mov_3                                          mov_4                                                            movs                                                                          iv_ps                                        iv_atk                            iv_def                                          iv_atk_es                              iv_def_es                                      iv_velocidad        ev_ps,ev_atk,ev_def,ev_atk_es,ev_def_es,ev_velocidad                                             
-            var sql1="INSERT INTO monsters(monster_id,monster_num,monster_name,special,user_current_owner,user_owner,in_team,genero,type_1,type_2,exp,naturaleza,habilidad,mov_1,mov_2,mov_3,mov_4,movs,iv_ps,iv_atk,iv_def,iv_atk_es,iv_def_es,iv_velocidad,ev_ps,ev_atk,ev_def,ev_atk_es,ev_def_es,ev_velocidad) VALUES (NULL,'"+data.starter+"','"+monsters.monster(data.starter).monstername+"',0,'"+socketGlobal.userID+"','"+socketGlobal.userID+"',1,0,"+monsters.monster(data.starter).type_1+","+monsters.monster(data.starter).type_2+",1,"+monsters.naturaleza()+","+monsters.habilidad(monsters.monster(data.starter).habilidades)+","+monsters.monster(data.starter).movimientos[0][0]+","+monsters.monster(data.starter).movimientos[0][0]+","+monsters.monster(data.starter).movimientos[0][0]+","+monsters.monster(data.starter).movimientos[0][0]+",'"+basicFunctions.movsAprendidosPorNivel(monsters.monster(data.starter),1)+"',"+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+",0,0,0,0,0,0);";
+            var sql1="INSERT INTO monsters(monster_id,monster_num,monster_name,special,user_current_owner,user_owner,in_team,genero,type_1,type_2,exp,naturaleza,habilidad,mov_1,mov_2,mov_3,mov_4,movs,iv_ps,iv_atk,iv_def,iv_atk_es,iv_def_es,iv_velocidad,ev_ps,ev_atk,ev_def,ev_atk_es,ev_def_es,ev_velocidad) VALUES (NULL,'"+data.starter+"','"+monsters.monster[data.starter].monstername+"',0,'"+socketGlobal.userID+"','"+socketGlobal.userID+"',1,0,"+monsters.monster[data.starter].type_1+","+monsters.monster[data.starter].type_2+",1,"+utils.ranNaturaleza()+","+utils.ranHabilidad(monsters.monster[data.starter].habilidades)+","+monsters.monster[data.starter].movimientos[0][0]+","+monsters.monster[data.starter].movimientos[0][0]+","+monsters.monster[data.starter].movimientos[0][0]+","+monsters.monster[data.starter].movimientos[0][0]+",'"+basicFunctions.movsAprendidosPorNivel(monsters.monster[data.starter],1)+"',"+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+","+basicFunctions.NumeroAleatorio(1,31)+",0,0,0,0,0,0);";
             sql1+="UPDATE users SET personaje='"+data.personaje+"'"+" WHERE user_id='"+socketGlobal.userID+"'";
             conexion.query(sql1, function (err, result) {
               //conexion.release();//suelta la connection 
@@ -180,7 +181,7 @@ function Player(id,userID,mapCode){
 function MonsterTeamBattle(monsterID,monster_num,monstername,level,holditem,special,exp,genero,in_team,type_1,type_2,habilidad,mov1,mov2,mov3,mov4,data){
 	this.monsterID=monsterID;
 	this.monster_num=monster_num;
-  this.altura=monsters.monster(monster_num).altura;
+  this.altura=monsters.monster[monster_num].altura;
 	this.monstername=monstername;
   this.level=level;
   this.holditem=holditem;
@@ -220,7 +221,7 @@ function WildMonsterBattle(monsterID,monster_num,special,monstername,catchable){
 }
 //STATS MONSTERS
 function dataStats(data){
-  var monster=monsters.monster(data.monster_num);
+  var monster=monsters.monster[data.monster_num];
   this.nivel=data.nivel;
   
   this.base_ps=monster.stats.ps;

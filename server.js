@@ -1,9 +1,10 @@
 //server.js    //server.js //server.js 
-//ACA ME QUEDE createTrainerMonsterStarter---> actualizo el trainer personaje pero me falta el starter monster donde guardarlo y el team sin usar la base de datos
+//ACA ME QUEDE UpdateMonsterStorage---> guardar en monsterStorage y de paso crear una libreria que busque y actualice pokemons
 //LIB
 var utils = require("./lib/utils.js");
 var mapas = require("./lib/maps.js");
 var plrGame = require("./lib/playerEntity.js");
+var monGame = require("./lib/monsterEntity.js");
 var worldMap = require("./lib/worlMap.js");
 var roomsGame={};
 //var plr = require("./lib/player.js");
@@ -235,7 +236,7 @@ io.sockets.on('connection', function(socket){
   //En escena CrearPlayer
   //##############################################################################################
   socket.on('crearPlayer',(data)=>{
-    createTrainerMonsterStarter(conexion,data,id,socketGlobal);
+    createTrainerMonsterStarter(conexion,data,socketGlobal);
 	});
   //##############################################################################################
   //En escena GLOBAL
@@ -456,8 +457,8 @@ function LoginSQL(conexion,data,SockID,socketGlobal,logged){
       //userGame.loadPlayer(playerGame);
       allplayers[SockID]=new PlayerServer(SockID,playerGame.user_id,playerGame.mapCode);
       socketGlobal.mapCode=playerGame.mapCode;
-      socketGlobal.userID=playerGame.user_id;
-      socketGlobal.username=playerGame.user_name;
+      socketGlobal.userID=playerGame.userID;
+      socketGlobal.username=playerGame.username;
       socketGlobal.wildMonster=null;
       
       socketGlobal.join(playerGame.mapCode);
@@ -470,27 +471,6 @@ function LoginSQL(conexion,data,SockID,socketGlobal,logged){
       socketGlobal.emit("loginSuccess",playerGame);
       logged=false;
     });
-    /*
-    var player=result[0];
-    var playerGame=new plrGame(player);
-    playerGame.categoria=player.categoria;
-    allplayers[SockID]=new PlayerServer(SockID,player.user_id,player.mapCode);
-    socketGlobal.mapCode=player.mapCode; 
-    socketGlobal.userID=player.user_id;
-    socketGlobal.username=player.user_name;
-    socketGlobal.wildMonster=null;
-
-    socketGlobal.join(player.mapCode);
-    if(roomsGame[socketGlobal.mapCode]==undefined){//No existe mapa
-      roomsGame[socketGlobal.mapCode]=new worldMap(socketGlobal.mapCode,mapas[socketGlobal.mapCode].mapname,mapas[socketGlobal.mapCode].maxPlayers,mapas[socketGlobal.mapCode].teleports);//creado
-      roomsGame[socketGlobal.mapCode].createMonsters(mapas[socketGlobal.mapCode].areasMonsters);//CREATE MONSTERS
-      roomsGame[socketGlobal.mapCode].createNPCS(mapas[socketGlobal.mapCode].npcs);//CREATE NPCS
-      roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]=playerGame;//PONIENDO AL  PLAYER EN MAPA
-    }else roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]=playerGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
-    socketGlobal.emit("loginSuccess",playerGame);
-  });
-  logged=false;
-  */
   });
 }
 //###############################
@@ -506,26 +486,46 @@ function RegisterSQL(conexion,data,SockID,socketGlobal){
 //##############################################################
 //##############################################################
 
-
-
-function createTrainerMonsterStarter(conexion,data,SockID,socketGlobal){
+function createTrainerMonsterStarter(conexion,data,socketGlobal){
   var starters={0:undefined,1:"Bulbasaur",4:"Charmander",7:"Squirtle"};
   var trainers={0:undefined,1:"Tilo",2:"Lillie"};
   
   var trainerNum=data.personaje;
   var monsterNum=data.starter;
   if(trainers[trainerNum]!==undefined && starters[monsterNum]!==undefined){
-    //console.log(trainers[trainerNum]+"-"+starters[monsterNum]);
     roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].updatePersonaje(trainerNum);
+    var newmon=new monGame(monsterNum,socketGlobal.userID);
+    var strNewmon=JSON.stringify(newmon);
+    var teamNum=Object.keys(roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].team).length;
+    var maxMonNum=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].maxMonsterNum;
+    var currMonNum=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].currMonsterNum;
+    if(teamNum<6){
+      sql.InsertNewMonster(conexion,strNewmon,socketGlobal.userID).then(function(newmonid){
+        //falta agregar su id al teamStorage---->en teamstorage ya no va nada por que el team se guardará en el array player
+        newmon.updateMonsterID(conexion,newmonid,socketGlobal.userID);
+        roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].team[newmonid]=newmon.monster_num;
+      });
+    }
+    else if(currMonNum<maxMonNum){
+      sql.InsertNewMonster(conexion,strNewmon,socketGlobal.userID).then(function(newmonid){
+        //falta agregar su id al monsterStorage
+        sql.UpdateMonsterStorage(conexion,newmon,socketGlobal.userID);
+        newmon.updateMonsterID(conexion,newmonid);
+        roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].currMonsterNum=currMonNum+1;
+      });
+    }
+    else{
+      //no se puede agregar a team o a storage...aumentar storage
+    }
+    socketGlobal.emit("crearPlayerSucess",{info:"Cambios realizados con exito",updatePlayer:roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]});
+    
   }else{
     console.log("Trainer o monster selected no son starter");
   }
   
   
-  var player=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-  sqlFuncs.createTrainerSQL(conexion,data,SockID,socketGlobal,player)//.then((result)=>{})
-  
-  //sql.createTrainer()
+  //var player=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
+  //sqlFuncs.createTrainerSQL(conexion,data,SockID,socketGlobal,player)//.then((result)=>{})
 }
 //##############################################################
 //##############################################################

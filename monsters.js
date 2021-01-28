@@ -16,7 +16,7 @@ monsters.monster[0]={
     def_es:65,
     velocidad:45,
   },
-  habilidades:{
+  habilidades:{//https://www.wikidex.net/wiki/Lista_de_habilidades
     1:[65,65],//normal
     2:34,//oculta
   },

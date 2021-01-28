@@ -1,3 +1,4 @@
+//s82moZSDa8
 var basicFunctions = require("./basicFunctions.js");
 var utils = require("./lib/utils.js");
 var monsters = require("./monsters.js");

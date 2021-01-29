@@ -5,7 +5,7 @@ var utils = require("./lib/utils.js");
 var mapas = require("./lib/maps.js");
 var plrGame = require("./lib/playerWorldEntity.js");
 
-var worldMap = require("./lib/worlMap.js");
+var worldMap = require("./lib/mapWorld.js");
 var roomsGame={};
 //var plr = require("./lib/player.js");
 //var test=new plr(1,"xd",0,1,1,0,0);
@@ -13,7 +13,7 @@ var roomsGame={};
 //var quest = require("./lib/quest.js");
 //var test=new quest(1,"Ed");
 //console.log(test);
-
+ 
 // where your node app starts
 var basicFunctions = require("./basicFunctions.js");
 
@@ -29,7 +29,7 @@ var CreatorObjects=require("./lib/Objects.js");
 var creatorDB=require("./lib/creatorDB.js");
 var checkerDB=require("./lib/checkerDB.js");
 
-var monGameDB = require("./lib/DBMonsterEntity.js");
+var monGameDB = require("./lib/DBnewMonsterEntity.js");
 var monsters = require("./monsters.js");
 //console.log(npcs);
  
@@ -182,7 +182,7 @@ io.sockets.on('connection', function(socket){
       } 
       socketGlobal.broadcast.to(socketGlobal.mapCode).emit('newMsg', {sender:userN,nivel:roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].categoria,msg:msg,date:fecha});
       socket.emit('newMsg', {sender:userN,nivel:roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].categoria,msg:msg,date:fecha});
-    
+
 	});
   socket.on('action',(data)=>{
     if(data.type=="movement"){
@@ -368,13 +368,15 @@ function LoginSQL(conexion,data,SockID,socketGlobal,logged){
     socketGlobal.mapCode=userGame.mapCode;
     socketGlobal.userID=userGame.user_id;
     socketGlobal.username=userGame.user_name;
+    socketGlobal.battleMap=null;
     socketGlobal.wildMonster=null;
+    
     
     socketGlobal.join(userGame.mapCode);
     if(roomsGame[socketGlobal.mapCode]==undefined){//No existe mapa
-      roomsGame[socketGlobal.mapCode]=new worldMap(socketGlobal.mapCode,mapas[socketGlobal.mapCode].mapname,mapas[socketGlobal.mapCode].maxPlayers,mapas[socketGlobal.mapCode].teleports);//creado
-      roomsGame[socketGlobal.mapCode].createMonsters(mapas[socketGlobal.mapCode].areasMonsters);//CREATE MONSTERS
-      roomsGame[socketGlobal.mapCode].createNPCS(mapas[socketGlobal.mapCode].npcs);//CREATE NPCS
+      roomsGame[socketGlobal.mapCode]=new worldMap(socketGlobal.mapCode);//creado
+      roomsGame[socketGlobal.mapCode].createMonsters();//CREATE MONSTERS
+      roomsGame[socketGlobal.mapCode].createNPCS();//CREATE NPCS
       roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]=userGame;//PONIENDO AL  PLAYER EN MAPA
     }else roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]=userGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
     socketGlobal.emit("loginSuccess",userGame);
@@ -617,7 +619,7 @@ function FinishPlayerWildBattle(socketGlobal,status,conexion){
   if(status="Wild_Die"){
     var exp=1;
     //destruir al pokemon salvaje-------------
-    roomsGame[socketGlobal.mapCode].monsterMapDestroy(socketGlobal,mapas[socketGlobal.mapCode].areasMonsters);
+    roomsGame[socketGlobal.mapCode].monsterMapDestroy(socketGlobal);
     //dar exp al pokemon player---------------
     sqlFuncs.GiveExpMonSQL(socketGlobal,conexion,exp)//.then((result)=>{});
     socketGlobal.monBattleID=null;

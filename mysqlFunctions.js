@@ -12,26 +12,20 @@ var exports = module.exports = {
   //-------SQL FUNCTIONS FOR LOGIN
   loginSQL: function(conexion,data,SockID,socketGlobal){
     return new Promise((resolve,reject)=>{
-      
       var sqlLogin = "SELECT * FROM users WHERE user_name =  '"+data.user+"' AND USER_password= '"+data.pass+"'";
-      //consultar
       conexion.query(sqlLogin, function (err, result) {
-        //conexion.release();
-        if (err) return reject(err);
+        if (err) resolve({object:null,info:"ERROR DESCONOCIDO EN LOGIN."});
         if(result!=undefined && result.length==1){
-          resolve(result);
+          resolve({object:result,info:"correcto"});
         }
         else if(result!=undefined && result.length>1){
           var error="Existe un error de bug con este usuario, vuelve a intentar o consulta con un administrador";
-          socketGlobal.emit("loginInfo",error);
-          //resolve(error);
+          resolve({object:null,info:error});
         }else{
           var error="Usuario o Password Incorrecto";
-          socketGlobal.emit("loginInfo",error);
-          //resolve(error);
+          resolve({object:null,info:error});
         }
       });
-      
     });
   },
   //-------SQL FUNCTIONS FOR LOGIN

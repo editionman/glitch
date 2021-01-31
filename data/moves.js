@@ -184,7 +184,7 @@ moves[5]={
   condition:{},
   turnos:{},
 }
-moves[5]={
+moves[6]={
   name:"Pay Day",
   type:11,
   categoria:"atk1",
@@ -201,7 +201,7 @@ moves[5]={
   condition:{},
   turnos:{},
 }
-moves[6]={
+moves[7]={
   name:"Fire Punch",
   type:7,
   categoria:"atk1",
@@ -1019,3 +1019,4 @@ moves[54]={
 }
 //-------------------------FIN---------------------
 var exports = module.exports = moves;
+ 

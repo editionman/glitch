@@ -1,3 +1,6 @@
+ //AMBIENTES
+//1-GRASS
+//2-
 var monsters={};
 monsters.monster={};
 monsters.mega={};
@@ -26,6 +29,7 @@ monsters.monster[0]={
     [33,"Tackle",1,"lvlup"],
     [497,"Echoed Voice",1,"lvlup"],
   ],
+  ambiente:0,//mapa donde peleara el wild
 };
 monsters.monster[1]={
   monstername:"Bulbasaur",
@@ -68,6 +72,7 @@ monsters.monster[1]={
     [235,"Synthesis",33,"lvlup"],
     [402,"Seed Bomb",37,"lvlup"],
   ],
+  ambiente:1,//Grass Ambient
 };
 monsters.monster[2]={
   monstername:"Ivysaur",
@@ -110,6 +115,7 @@ monsters.monster[2]={
     [235,"Synthesis",39,"lvlup"],
     [76,"Solar Beam",44,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[3]={
   monstername:"Venusaur",
@@ -151,6 +157,7 @@ monsters.monster[3]={
     [572,"Petal Blizzard",50,"lvlup"],
     [76,"Solar Beam",53,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[4]={
   monstername:"Charmander",
@@ -189,6 +196,7 @@ monsters.monster[4]={
     [83,"Fire Spin",43,"lvlup"],
     [517,"Inferno",46,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[5]={
   monstername:"Charmeleon",
@@ -227,6 +235,7 @@ monsters.monster[5]={
     [83,"Fire Spin",50,"lvlup"],
     [517,"Inferno",54,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[6]={
   monstername:"Charizard",
@@ -270,6 +279,7 @@ monsters.monster[6]={
     [83,"Fire Spin",56,"lvlup"],
     [517,"Inferno",62,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[7]={
   monstername:"Squirtle",
@@ -310,6 +320,7 @@ monsters.monster[7]={
     [240,"Rain Dance",37,"lvlup"],
     [56,"Hydro Pump",40,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[8]={
   monstername:"Wartortle",
@@ -350,6 +361,7 @@ monsters.monster[8]={
     [240,"Rain Dance",45,"lvlup"],
     [56,"Hydro Pump",49,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[9]={
   monstername:"Blastoise",
@@ -390,6 +402,7 @@ monsters.monster[9]={
     [240,"Rain Dance",54,"lvlup"],
     [56,"Hydro Pump",60,"lvlup"],
   ],
+  ambiente:1,
 };
 monsters.monster[10]={
   monstername:"Caterpie",
@@ -416,9 +429,10 @@ monsters.monster[10]={
   },
   movimientos:[
     [33,"Tackle",1,"lvlup"],
-    //[39,"String Shot",1,"lvlup"],
-    //[55,"Bug Bite",9,"lvlup"],
+    //[81,"String Shot",1,"lvlup"],
+    //[450,"Bug Bite",9,"lvlup"],
   ],
+  ambiente:1,
 };
 //-------------------------FIN---------------------
 var exports = module.exports = monsters;

@@ -12,6 +12,9 @@ npcs[1]={
   char:3,
   talk:[
     "Hello my name is Kukui",
+    "How are you?",
+    "Oh fine! good bye.",
+    /*
     "you are new trainer? let me update you on what happened in the world...",
     "Before the catastrophe there were groups of trainers who did their best to take over the world.",
     "the pokemon police tried to eliminate these groups, but they were too many and every day more trainers joined them.",
@@ -23,6 +26,7 @@ npcs[1]={
     "many researchers try to find a solution but so far we don't know anything.",
     "since you are a trainer you can help us with the investigation",
     "come see me if you discover something",
+    */
     //"hello trainer what did you discover?",
   ],
   quests: [1,2],//al completarse el actual sigue con el siguiente y asi sucesivamente
@@ -43,4 +47,4 @@ npcs[3]={
   moveType:"idle",
   func:"teleport",
 }
-var exports = module.exports = npcs;
+var exports = module.exports = npcs; 

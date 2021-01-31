@@ -5,7 +5,7 @@ maps.battle={};
 //*************************************************
 //*************************************************
 //|||||||||||||||||||WORLD|||||||||||||||||||||||||
-//*************************************************
+//************************************************* 
 //*************************************************
 maps.world[0]={
   mapname: "In Development",
@@ -59,11 +59,13 @@ maps.world[2]={
 //*************************************************
 //*************************************************
 maps.battle[0]={
-  mapname: "InDev Battle Map",
+  mapname: "IN_DEV Battle Map",
   team_A:{},
   team_B:{},
+  viewers:{},
+  arbitros:{},
   clima:null,
-  ambiente:{},//esto se crea en cada espacio de cada team
+  ambiente:{},
 }
 maps.battle[1]={
   mapname: "Grass Battle Map",
@@ -72,6 +74,7 @@ maps.battle[1]={
   viewers:{},
   arbitros:{},
   clima:null,
+  ambiente:{},
 }
 
 
@@ -85,11 +88,12 @@ var team_A={
     usernum:2,
     username:"dfsafa",
     monsterinbattle:{
-      campo:{reflejo:5,espacioraro:true},//aca viene todos los movimientos que afectan al campo como espacio raro,neblina,pantallaluz,reflejo,
+      campo:{reflejo:5,pantallaluz:5,espacioraro:true},//aca viene todos los movimientos que afectan al campo como espacio raro,neblina,pantallaluz,reflejo,
       //en el campo tmb vienen los turnos de cuanto dura cada habilidad y se descuenta en cada turno
       //cuando es booleano quiere decir que no acaba el efecto en turnos sino que se desactiva con algun movimiento o habilidad
       objeto:1,
       habilidad:321,
+      naturaleza:1,
       status:{1:5},//estatus en que se encuentra ejemplo 1=burned por 5 turnos
       canChangeStats:false,
       canChangeStatus:false,
@@ -123,3 +127,20 @@ var team_A={
     }
   },
 }
+//otro ejemplo de como empieza en partida
+var team_B={
+  21312:{
+    userid:21312,
+    usernum:2,
+    username:"dfsafa",
+    monsterinbattle:{},//aca viene datos de pokemon in battle-------------------POR AHORA ES PREFERIBLE QUE SEA EL MISMO OBJETO
+    team:{
+      1:{},//aca viene datos de pokemon team battle-----------------------------POR AHORA ES PREFERIBLE QUE SEA EL MISMO OBJETO
+      2:{},
+      3:{},
+      4:{},
+      5:{},
+      6:{},
+    }
+  },
+};

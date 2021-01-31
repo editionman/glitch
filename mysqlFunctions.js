@@ -1,8 +1,8 @@
 //s82moZSDa8
 var basicFunctions = require("./basicFunctions.js");
 var utils = require("./lib/utils.js");
-var monsters = require("./monsters.js");
-var moves = require("./moves.js");
+var monsters = require("./data/monsters.js");
+var moves = require("./data/moves.js");
 var starters={1:"Bulbasaur",4:"Charmander",7:"Squirtle"}
 var trainers={0:"undefined",1:"Tilo",2:"Lillie"}
 var exports = module.exports = {

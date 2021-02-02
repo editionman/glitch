@@ -65,7 +65,7 @@ maps.battle[0]={
   viewers:{},
   arbitros:{},
   clima:null,
-  ambiente:{},
+  ambiente:0,
 }
 maps.battle[1]={
   mapname: "Grass Battle Map",
@@ -74,7 +74,7 @@ maps.battle[1]={
   viewers:{},
   arbitros:{},
   clima:null,
-  ambiente:{},
+  ambiente:1,
 }
 
 

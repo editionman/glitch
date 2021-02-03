@@ -4,14 +4,15 @@
 //LIB
 var Utils = require("./lib/utils.js");
 var mapas = require("./data/maps.js");
-var plrGame = require("./lib/playerWorldEntity.js");
-var plrBattle = require("./lib/playerBattleEntity.js");
+var plrGame = require("./lib/WorldEntityPlayer.js");
+var plrBattle = require("./lib/BattleEntityPlayer.js");
+var npcBattle = require("./lib/BattleEntityNpc.js");
 
 var worldMap = require("./lib/mapWorld.js");
 var battleMap = require("./lib/mapBattle.js");
 var roomsGame={};
 var roomsBattle={};
-  
+   
 // where your node app starts
 var basicFunctions = require("./basicFunctions.js");
 var uuid = require("uuid");
@@ -252,27 +253,33 @@ io.sockets.on('connection', function(socket){
       roomsGame[socketGlobal.mapCode].monsterSelectBattle(data,socketGlobal);
     }
 	});
-  socket.on('battleWildMonster',(monID)=>{
+  socket.on('battleWildMonster',(monID)=>{//ACA SE ENVIA LA DATA PARA CAMBIAR BATALLA 
     socketGlobal.battleMap=("Battle"+uuid.v4());
     socketGlobal.leave(socketGlobal.mapCode);
     socketGlobal.join(socketGlobal.battleMap);
+    var wild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon
     var playerBattle=new plrBattle(roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]);
+    var npcBattler= new npcBattle({user_id:wild.monster_id,user_name:null,personaje:null},wild);//obj.info---obj.team
     if(roomsBattle[socketGlobal.battleMap]==undefined){
       roomsBattle[socketGlobal.battleMap]=new battleMap(socketGlobal.mapCode);//creado
-      //roomsBattle[socketGlobal.battleMap].teamA[socketGlobal.userID]=playerBattle;
       roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);
+      roomsBattle[socketGlobal.battleMap].addWildNPC(npcBattler,npcBattler.user_id);//id,party
+      
     }
-    else roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);
-    roomsGame[socketGlobal.mapCode].monsterStartBattle(monID,socketGlobal);//envia a todos los del mapa que este usuario entro en batalla con el wild
+    else {
+      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);
+      roomsBattle[socketGlobal.battleMap].addWildNPC(uuid.v4(),uuid.v4());
+    }
+    roomsGame[socketGlobal.mapCode].monsterStartBattle(monID,socketGlobal);//envia a todos los del mapa que este usuario entro en batalla con el wild y al usuario lo cambia al mapa de batalla
 	});
   socket.on('battleTurnAction',(data)=>{
     //data.type--data.id
     //movement,monster,item,run----num or idbag)
     var team=roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].team;
-    if(roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turn===true){
+    if(roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turno===true){
       //roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turn=false;
       if(data.type==="run")roomsGame[socketGlobal.mapCode].monsterRunBattle(socketGlobal);
-      else roomsBattle[socketGlobal.battleMap].turn(conexion,socketGlobal,data);//id,team,data
+      else roomsBattle[socketGlobal.battleMap].turnoAction(conexion,socketGlobal,data);//id,team,data
     }
   });
   socket.on('cancelBattleWildMonster',(monID)=>{//se cancela la batalla antes de cambiar mapa
@@ -291,12 +298,7 @@ io.sockets.on('connection', function(socket){
   //En escena WILDBATTLE
   //##############################################################################################
   socket.on('playerJoinWildBattle',(data)=>{
-    if(allplayers[id]===undefined){
-      socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
-    }
-    else {
-      startPlayerWildBattle(data,socketGlobal,id,conexion);
-    }
+    startPlayerWildBattle(data,socketGlobal,id,conexion);
 	});
   socket.on('WildBattleStatus',(data)=>{
     FinishPlayerWildBattle(socket,data.status,conexion);
@@ -632,11 +634,14 @@ function WildMonsterBattleOff(socketGlobal,ap){//--Ya no sirve reemplazado!
 //##############################################################
 async function startPlayerWildBattle(data,socketGlobal,id,conexion){
   roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].inBattle=true;//entra en batalla
+  var partysGame=data;
   var teamArr=[];
   var monWild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon;
-  var monid=monWild.monid;
-  var monParty=uuid.v4();
-  var wildResult=await roomsBattle[socketGlobal.battleMap].addMonster(monWild,monParty);
+  monWild.battleParty=monWild.monster_id;
+  //var monParty=monWild.battleParty
+  var owner=monWild.monster_id;
+  roomsBattle[socketGlobal.battleMap].setPartys(partysGame,socketGlobal);
+  //var wildResult=await roomsBattle[socketGlobal.battleMap].addMonster(monWild,owner);
   var teamResult=await checkerDB.CheckTeam(conexion,socketGlobal.userID);
   if(teamResult.object===null){
     socketGlobal.emit("error",teamResult.info);
@@ -646,8 +651,10 @@ async function startPlayerWildBattle(data,socketGlobal,id,conexion){
   for(var i=0;i<teamResult.object.length;i++){
     teamArr[i]=CreatorObjects.MonsterBasicInfo(teamResult.object[i]);
   }
+  socketGlobal.emit("WildBattleStart",{team:teamArr});
   //socketGlobal.emit("WildBattleStart",{team:teamArr,wild:monWild});
-  socketGlobal.emit("WildBattleStart",{team:teamArr,wild:wildResult});
+  //socketGlobal.emit("WildBattleStart",{team:teamArr,wild:wildResult});
+  //socketGlobal.emit("WildBattleStart",roomsBattle[socketGlobal.battleMap].players);
   socketGlobal.isWaiting=false;
 }
 

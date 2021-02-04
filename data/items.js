@@ -29,7 +29,7 @@
 
 //itemStorage....contenido|||itemid,qty
 //item_id	          user_owner	item_name	    item_num	item_qty	item_type	item_battle  held_item
-//autoincrement        1        "Pokeball"       0        255         2        3            0
+//autoincrement        1        "Pokeball"       0        255         2        2            0
 //autoincrement        1        "Potion"         6        10          2        1            0
 
 

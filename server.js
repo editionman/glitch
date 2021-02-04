@@ -246,12 +246,7 @@ io.sockets.on('connection', function(socket){
     }
 	});
   socket.on('wildMonsterSelect',(data)=>{
-    if(allplayers[id]===undefined){
-      socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
-    }
-    else {
-      roomsGame[socketGlobal.mapCode].monsterSelectBattle(data,socketGlobal);
-    }
+    roomsGame[socketGlobal.mapCode].monsterSelectBattle(data,socketGlobal);
 	});
   socket.on('battleWildMonster',(monID)=>{//ACA SE ENVIA LA DATA PARA CAMBIAR BATALLA 
     socketGlobal.battleMap=("Battle"+uuid.v4());
@@ -259,16 +254,16 @@ io.sockets.on('connection', function(socket){
     socketGlobal.join(socketGlobal.battleMap);
     var wild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon
     var playerBattle=new plrBattle(roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]);
-    var npcBattler= new npcBattle({user_id:wild.monster_id,user_name:null,personaje:null},wild);//obj.info---obj.team
+    var npcBattler= new npcBattle({user_id:wild.monster_id,user_name:null,personaje:null},{1:wild});//obj.info---obj.team
     if(roomsBattle[socketGlobal.battleMap]==undefined){
       roomsBattle[socketGlobal.battleMap]=new battleMap(socketGlobal.mapCode);//creado
-      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);
-      roomsBattle[socketGlobal.battleMap].addWildNPC(npcBattler,npcBattler.user_id);//id,party
+      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);//se establece el host
+      roomsBattle[socketGlobal.battleMap].addWildNPC(socketGlobal,npcBattler,npcBattler.user_id);//id,party
       
     }
     else {
-      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);
-      roomsBattle[socketGlobal.battleMap].addWildNPC(uuid.v4(),uuid.v4());
+      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);//se establece el host
+      roomsBattle[socketGlobal.battleMap].addWildNPC(socketGlobal,npcBattler,npcBattler.user_id);//id,party
     }
     roomsGame[socketGlobal.mapCode].monsterStartBattle(monID,socketGlobal);//envia a todos los del mapa que este usuario entro en batalla con el wild y al usuario lo cambia al mapa de batalla
 	});
@@ -279,7 +274,7 @@ io.sockets.on('connection', function(socket){
     if(roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turno===true){
       //roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turn=false;
       if(data.type==="run")roomsGame[socketGlobal.mapCode].monsterRunBattle(socketGlobal);
-      else roomsBattle[socketGlobal.battleMap].turnoAction(conexion,socketGlobal,data);//id,team,data
+      else roomsBattle[socketGlobal.battleMap].turnoActionPlayer(conexion,socketGlobal,data);//id,team,data
     }
   });
   socket.on('cancelBattleWildMonster',(monID)=>{//se cancela la batalla antes de cambiar mapa
@@ -299,6 +294,9 @@ io.sockets.on('connection', function(socket){
   //##############################################################################################
   socket.on('playerJoinWildBattle',(data)=>{
     startPlayerWildBattle(data,socketGlobal,id,conexion);
+	});
+  socket.on('startedWildBattle',(data)=>{
+    roomsBattle[socketGlobal.battleMap].allNpcsAction(socketGlobal);
 	});
   socket.on('WildBattleStatus',(data)=>{
     FinishPlayerWildBattle(socket,data.status,conexion);
@@ -637,10 +635,11 @@ async function startPlayerWildBattle(data,socketGlobal,id,conexion){
   var partysGame=data;
   var teamArr=[];
   var monWild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon;
-  monWild.battleParty=monWild.monster_id;
-  //var monParty=monWild.battleParty
+  monWild.battlePartyID=monWild.monster_id;
+  //var monParty=monWild.battlePartyID
   var owner=monWild.monster_id;
-  roomsBattle[socketGlobal.battleMap].setPartys(partysGame,socketGlobal);
+  roomsBattle[socketGlobal.battleMap].setPartysNpcs(socketGlobal);
+  roomsBattle[socketGlobal.battleMap].setPartysPlayers(partysGame,socketGlobal);
   //var wildResult=await roomsBattle[socketGlobal.battleMap].addMonster(monWild,owner);
   var teamResult=await checkerDB.CheckTeam(conexion,socketGlobal.userID);
   if(teamResult.object===null){

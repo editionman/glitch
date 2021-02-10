@@ -239,10 +239,11 @@ io.sockets.on('connection', function(socket){
     //movement,monster,item,run----num or idbag)
     var player=socketPlayer.player;
     var team=roomsBattle[player.battleMap].players[player.userID].team;
+    if(data.type==="run")roomsGame[player.mapCode].monsterRunBattle(socketPlayer);//temporal por que run debe ser efectivo solo si tiene turno
     if(roomsBattle[player.battleMap].players[player.userID].turno===true){
       //roomsBattle[player.battleMap].players[player.userID].turn=false;
-      if(data.type==="run")roomsGame[player.mapCode].monsterRunBattle(socketPlayer);
-      else roomsBattle[player.battleMap].turnoActionPlayer(conexion,socketPlayer,data);//id,team,data
+      //if(data.type==="run")roomsGame[player.mapCode].monsterRunBattle(socketPlayer);
+      roomsBattle[player.battleMap].turnoActionPlayer(conexion,socketPlayer,data);//id,team,data
     }
   });
   socket.on('cancelBattleWildMonster',(monID)=>{//se cancela la batalla antes de cambiar mapa

@@ -76,22 +76,6 @@ var tiempo={
 // ##########################################################################################################
 // ##########################################################################################################
 // ##########################################################################################################
-//OBJETOS INGAME
-function PlayerServer(id,userID,mapCode){
-	this.id=id;
-	this.userID=userID;
-	this.mapCode=mapCode;
-  this.teamMonsters={};
-}
-
-
-function itemInfo(itemID,item_num,item_name,item_type,user_owner){
-	this.itemID=itemID;
-	this.item_num=item_num;
-	this.item_name=item_name;
-  this.item_type=item_type;
-  this.user_owner=user_owner;
-}
 
 
 //ESTABLECER CONEXION
@@ -120,24 +104,24 @@ function keepalive() {
 setInterval(keepalive,60000);
 
 
-
+//el connection sucede en cada uno de los users individuales
 // we've started you off with Express, 
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
 io.sockets.on('connection', function(socket){
-  var socketGlobal=socket;
+  var socketPlayer=socket;
   var id=socket.id;
-  socketGlobal.logged=false;
-  socketGlobal.isWaiting=false;
+  socketPlayer.isWaiting=false;
   //##############################################################################################
   //En escena INGRESO
   //##############################################################################################
   socket.on('userLogin',(data)=>{
     if(ValueIsString(data.user) && ValueIsString(data.pass)){
-      //"usuario correcto para ingresar");
-      if(Object.keys(allplayers).length<maxPlayers && socketGlobal.logged===false){
-        socketGlobal.logged=true;
-        LoginSQL(conexion,data,id,socketGlobal);
-      }else socket.emit('serverFull',"Servidor Lleno, debes esperar que alguien salga o puedes donar para ingresar directamente");
+      if(Object.keys(allplayers).length<maxPlayers && socketPlayer.isWaiting===false){
+        socketPlayer.isWaiting=true;
+        LoginSQL(conexion,data,id,socketPlayer);
+      }else if(Object.keys(allplayers).length>maxPlayers){
+        socket.emit('serverFull',"Servidor Lleno, debes esperar que alguien salga o puedes donar para ingresar directamente");
+      }
     }
     else{
       var infoLog="Ingrese un usuario y password válidos";
@@ -146,10 +130,11 @@ io.sockets.on('connection', function(socket){
   });
   socket.on('userRegister',(data)=>{
     if(ValueIsString(data.user) && ValueIsString(data.pass) && ValueIsString(data.email)){
-      //usuario correcto para registrar");
-      RegisterSQL(conexion,data,id,socketGlobal);
-    }
-    else{
+      if(socketPlayer.isWaiting===false){
+        socketPlayer.isWaiting=true;
+        RegisterSQL(conexion,data,socketPlayer);
+      }
+    }else{
       var infoReg="Ingrese un usuario, email y password válidos";
 			socket.emit("registerInfo",infoReg);
     }
@@ -158,19 +143,19 @@ io.sockets.on('connection', function(socket){
   //En escena CrearPlayer
   //##############################################################################################
   socket.on('crearPlayer',(data)=>{
-    if(socketGlobal.isWaiting===false){
-      socketGlobal.isWaiting=true;
-      createTrainerMonsterStarter(conexion,data,socketGlobal);  
+    if(socketPlayer.isWaiting===false){
+      socketPlayer.isWaiting=true;
+      createTrainerMonsterStarter(conexion,data,socketPlayer,id);  
     }
 	});
   //##############################################################################################
   //En escena GLOBAL
   //##############################################################################################
   socket.on('playerJoin',(data)=>{
-		startPlayer(data,id,socketGlobal);
+		startPlayer(data,id,socketPlayer);
 	});
   socket.on('newMsg',(data)=>{
-      var userN = roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].username;
+      var userN = roomsGame[socketPlayer.mapCode].players[socketPlayer.userID].username;
       var msg = data.msg;
       var date=new Date();
       var fecha={
@@ -178,20 +163,22 @@ io.sockets.on('connection', function(socket){
         minuto:date.getMinutes(),
         dia: basicFunctions.NameDay(date.getDay())
       } 
-      socketGlobal.broadcast.to(socketGlobal.mapCode).emit('newMsg', {sender:userN,nivel:roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].categoria,msg:msg,date:fecha});
-      socket.emit('newMsg', {sender:userN,nivel:roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].categoria,msg:msg,date:fecha});
+      socketPlayer.broadcast.to(socketPlayer.mapCode).emit('newMsg', {sender:userN,nivel:roomsGame[socketPlayer.mapCode].players[socketPlayer.userID].categoria,msg:msg,date:fecha});
+      socket.emit('newMsg', {sender:userN,nivel:roomsGame[socketPlayer.mapCode].players[socketPlayer.userID].categoria,msg:msg,date:fecha});
 
 	});
   socket.on('action',(data)=>{
     if(data.type=="movement"){
-      roomsGame[socketGlobal.mapCode].playerAction(socketGlobal.userID,data,socketGlobal);
+      roomsGame[socketPlayer.player.mapCode].playerAction(data,socketPlayer);
+      //socketGlobal.broadcast.to(player.mapCode).emit('playerAction',{player:roomsGame[player.mapCode].players[player.userID],type:'movement',state:roomsGame[player.mapCode].players[player.userID].animStatus});
     }
 	});
   socket.on('teamMonsters',(data)=>{
-    var ap=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-    if(socketGlobal.isWaiting===false){
-      TeamMonsterServer(socketGlobal,id,conexion,ap);
-      socketGlobal.isWaiting=true;
+    var player=allplayers[id];
+    var ap=roomsGame[player.mapCode].players[player.userID];
+    if(socketPlayer.isWaiting===false){
+      socketPlayer.isWaiting=true;
+      TeamMonsterServer(socketPlayer,id,conexion,ap);
     }
 	});
   socket.on('monsters',(data)=>{
@@ -199,10 +186,10 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-      if(socketGlobal.isWaiting===false){
-        AllMonsterServer(socketGlobal,id,conexion,ap);
-        socketGlobal.isWaiting=true;
+      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      if(socketPlayer.isWaiting===false){
+        socketPlayer.isWaiting=true;
+        AllMonsterServer(socketPlayer,id,conexion,ap,socketPlayer.isWaiting);
       }
     }
 	});
@@ -211,8 +198,8 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-      MonsterProfileServer(socketGlobal,id,conexion,ap,data);
+      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      MonsterProfileServer(socketPlayer,id,conexion,ap,data);
     }
 	});
   socket.on('bag',(data)=>{
@@ -220,10 +207,10 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-      if(socketGlobal.isWaiting===false){
-        bagServer(socketGlobal,id,conexion,ap);
-        socketGlobal.isWaiting=true;
+      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      if(socketPlayer.isWaiting===false){
+        socketPlayer.isWaiting=true;
+        bagServer(socketPlayer,id,conexion,ap,socketPlayer.isWaiting);
       }
     }
 	});
@@ -232,74 +219,56 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-      evolveServer(socketGlobal,id,conexion,ap,data.monid);
+      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      evolveServer(socketPlayer,id,conexion,ap,data.monid);
     }
 	});
   socket.on('evolveMonsterStart',(data)=>{
-    if(allplayers[id]===undefined){
-      socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
-    }
-    else {
-      var ap=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
-      evolveServerStart(socketGlobal,id,conexion,ap,data.monid,data.monnum);
-    }
+    var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+    evolveServerStart(socketPlayer,id,conexion,ap,data.monid,data.monnum);
 	});
   socket.on('wildMonsterSelect',(data)=>{
-    roomsGame[socketGlobal.mapCode].monsterSelectBattle(data,socketGlobal);
+    var player=allplayers[id];
+    roomsGame[player.mapCode].monsterSelectBattle(data,player,socketPlayer);
 	});
   socket.on('battleWildMonster',(monID)=>{//ACA SE ENVIA LA DATA PARA CAMBIAR BATALLA 
-    socketGlobal.battleMap=("Battle"+uuid.v4());
-    socketGlobal.leave(socketGlobal.mapCode);
-    socketGlobal.join(socketGlobal.battleMap);
-    var wild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon
-    var playerBattle=new plrBattle(roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]);
-    var npcBattler= new npcBattle({user_id:wild.monster_id,user_name:null,personaje:null},{1:wild});//obj.info---obj.team
-    if(roomsBattle[socketGlobal.battleMap]==undefined){
-      roomsBattle[socketGlobal.battleMap]=new battleMap(socketGlobal.mapCode);//creado
-      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);//se establece el host
-      roomsBattle[socketGlobal.battleMap].addWildNPC(socketGlobal,npcBattler,npcBattler.user_id);//id,party
-      
-    }
-    else {
-      roomsBattle[socketGlobal.battleMap].addPlayer(playerBattle,socketGlobal.party);//se establece el host
-      roomsBattle[socketGlobal.battleMap].addWildNPC(socketGlobal,npcBattler,npcBattler.user_id);//id,party
-    }
-    roomsGame[socketGlobal.mapCode].monsterStartBattle(monID,socketGlobal);//envia a todos los del mapa que este usuario entro en batalla con el wild y al usuario lo cambia al mapa de batalla
+    roomsGame[socketPlayer.player.mapCode].changeWildBattleMap(socketPlayer,roomsBattle,monID);
 	});
   socket.on('battleTurnAction',(data)=>{
     //data.type--data.id
     //movement,monster,item,run----num or idbag)
-    var team=roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].team;
-    if(roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turno===true){
-      //roomsBattle[socketGlobal.battleMap].players[socketGlobal.userID].turn=false;
-      if(data.type==="run")roomsGame[socketGlobal.mapCode].monsterRunBattle(socketGlobal);
-      else roomsBattle[socketGlobal.battleMap].turnoActionPlayer(conexion,socketGlobal,data);//id,team,data
+    var player=socketPlayer.player;
+    var team=roomsBattle[player.battleMap].players[player.userID].team;
+    if(roomsBattle[player.battleMap].players[player.userID].turno===true){
+      //roomsBattle[player.battleMap].players[player.userID].turn=false;
+      if(data.type==="run")roomsGame[player.mapCode].monsterRunBattle(socketPlayer);
+      else roomsBattle[player.battleMap].turnoActionPlayer(conexion,socketPlayer,data);//id,team,data
     }
   });
   socket.on('cancelBattleWildMonster',(monID)=>{//se cancela la batalla antes de cambiar mapa
-    roomsGame[socketGlobal.mapCode].monsterCancelBattle(socketGlobal);
+    roomsGame[socketPlayer.player.mapCode].monsterCancelBattle(socketPlayer);
 	});
   socket.on('runBattleWildMonster',(monID)=>{//se cancela la batalla despues de cambiar mapa
-    roomsGame[socketGlobal.mapCode].monsterRunBattle(socketGlobal);
+    roomsGame[socketPlayer.player.mapCode].monsterRunBattle(socketPlayer);
+    //roomsBattle[player.nextMap].changeWorldMap(player,socketPlayer);
 	});
   //##############################################################################################
   //En escena NPC
   //##############################################################################################
   socket.on('npcSelect',(data)=>{
-    roomsGame[socketGlobal.mapCode].NPCDialog(conexion,socketGlobal,data.npcID,data.guid);
+    roomsGame[socketPlayer.mapCode].NPCDialog(conexion,socketPlayer,data.npcID,data.guid);
 	});
   //##############################################################################################
   //En escena WILDBATTLE
   //##############################################################################################
   socket.on('playerJoinWildBattle',(data)=>{
-    startPlayerWildBattle(data,socketGlobal,id,conexion);
+    startPlayerWildBattle(data,socketPlayer,id,conexion);
 	});
   socket.on('startedWildBattle',(data)=>{
-    roomsBattle[socketGlobal.battleMap].allNpcsAction(socketGlobal);
+    roomsBattle[socketPlayer.player.battleMap].allNpcsAction(socketPlayer);
 	});
   socket.on('WildBattleStatus',(data)=>{
-    FinishPlayerWildBattle(socket,data.status,conexion);
+    FinishPlayerWildBattle(socket,id,data.status,conexion);
   });  
   //##############################################################################################
   //En DESCONEXION
@@ -307,8 +276,11 @@ io.sockets.on('connection', function(socket){
   socket.on('disconnect',()=>{
     //"user disconnected");
     if(allplayers[id]!=undefined){
-      roomsGame[socketGlobal.mapCode].monsterCancelBattle(socketGlobal);
-      roomsGame[socketGlobal.mapCode].playerLeft(conexion,socketGlobal);
+      //var player=allplayers[id];
+      var player=socketPlayer.player;
+      roomsGame[player.mapCode].monsterCancelBattle(socketPlayer);
+      roomsGame[player.mapCode].playerLeft(conexion,socketPlayer);
+      delete allplayers[id];
 		}
   });
 });
@@ -385,75 +357,70 @@ async function LoginSQL(conexion,data,SockID,socketGlobal){
   const result=await checkerDB.checkLogin(conexion,data);
   if(result.object===null){
     socketGlobal.emit("loginInfo",result.info);
-    socketGlobal.logged=false;
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
     return
   }
   var user=result.object[0];
   var userGame=new plrGame(user);
-  allplayers[SockID]=new PlayerServer(SockID,userGame.user_id,userGame.mapCode);
-  socketGlobal.mapCode=userGame.mapCode;
-  socketGlobal.userID=userGame.user_id;
-  socketGlobal.username=userGame.user_name;
-  socketGlobal.battleMap=null;
-  socketGlobal.party=userGame.user_id;
-  socketGlobal.wildMonster=null;
-  
-  socketGlobal.join(userGame.mapCode);
-  if(roomsGame[socketGlobal.mapCode]==undefined){//No existe mapa
-    roomsGame[socketGlobal.mapCode]=new worldMap(socketGlobal.mapCode);//creado
-    roomsGame[socketGlobal.mapCode].createMonsters();//CREATE MONSTERS
-    roomsGame[socketGlobal.mapCode].createNPCS();//CREATE NPCS
-    roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]=userGame;//PONIENDO AL  PLAYER EN MAPA
-  }else roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]=userGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
+  allplayers[SockID]=CreatorObjects.PlayerServer(userGame);
+  socketGlobal.player=allplayers[SockID];
+  var player=socketGlobal.player;
+  if(roomsGame[player.mapCode]==undefined){//No existe mapa
+    roomsGame[player.mapCode]=new worldMap(player.mapCode);//creado
+    roomsGame[player.mapCode].createMonsters();//CREATE MONSTERS
+    roomsGame[player.mapCode].createNPCS();//CREATE NPCS
+    roomsGame[player.mapCode].players[player.userID]=userGame;//PONIENDO AL  PLAYER EN MAPA
+  }else roomsGame[player.mapCode].players[player.userID]=userGame;//PONIENDO AL PLAYER EN MAPA EXISTENTE
   socketGlobal.emit("loginSuccess",userGame);
-  socketGlobal.logged=false;
+  setTimeout(function(){socketGlobal.isWaiting=false;},1000);
 }
 //###############################
 //Register con base de datos
 //###############################
-async function RegisterSQL(conexion,data,SockID,socketGlobal){
-  const result=await creatorDB.registerSQL(conexion,data,SockID,socketGlobal);
+async function RegisterSQL(conexion,data,socketGlobal){
+  const result=await creatorDB.registerSQL(conexion,data);
   if(result.object===null){
     socketGlobal.emit("registerInfo",result.info);
-    socketGlobal.logged=false;
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
     return
   }
   socketGlobal.emit(result.object,result.info);
-  socketGlobal.logged=false;
+  setTimeout(function(){socketGlobal.isWaiting=false;},1000);
 }
 //##############################################################
 //##############################################################
 //####################ESCENA CREAR TRAINER######################
 //##############################################################
 //##############################################################
-async function createTrainerMonsterStarter(conexion,data,socketGlobal){
+async function createTrainerMonsterStarter(conexion,data,socketGlobal,SockID){
   var starters={0:undefined,1:"Bulbasaur",4:"Charmander",7:"Squirtle"};//DISPONIBLES PARA EMPEZAR EL VIAJE
   var trainers={0:undefined,1:"Tilo",2:"Lillie"};                      //DISPONIBLES PARA EMPEZAR EL VIAJE
   var trainerNum=data.personaje;
   var monsterNum=data.starter;
-  var plr=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID];
+  //var player=allplayers[SockID];
+  var plr=roomsGame[socketGlobal.player.mapCode].players[socketGlobal.player.userID];
   var existTeam=Utils.getTeamPosition(plr.team);//regresa del 1 al 6 si hay slot vacio sino si esta lleno regresa null
   //verificar monster y trainer
   if(trainers[trainerNum]===undefined && starters[monsterNum]===undefined){
     socketGlobal.emit("crearPlayerInfo","Error el trainer que seleccionaste o el pokemon elegido no existen");
-    socketGlobal.isWaiting=false;
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
     return;
   }
   //verificar si no tiene personaje y no tiene ningun pokemon en team
   if(plr.personaje===0 && (existTeam===null || existTeam>1)){
     socketGlobal.emit("crearPlayerInfo","Error este trainer ya no debe estar aca.");
-    socketGlobal.isWaiting=false;
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
     return;
   }
-  var newmon=newmon=new monGameDB(monsterNum,socketGlobal.userID);
+  var newmon=newmon=new monGameDB(monsterNum,socketGlobal.player.userID);
   var result=await creatorDB.CreateStarterTrainer(conexion,trainerNum,newmon,plr);
   if(result.object===null){
     socketGlobal.emit("crearPlayerInfo",result.info);
-    socketGlobal.isWaiting=false;
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
     return
   }
-  socketGlobal.emit(result.object,{info:result.info,updatePlayer:roomsGame[socketGlobal.mapCode].players[socketGlobal.userID]});
-  socketGlobal.isWaiting=false;
+  socketGlobal.emit(result.object,{info:result.info,updatePlayer:roomsGame[socketGlobal.player.mapCode].players[socketGlobal.player.userID]});
+  setTimeout(function(){socketGlobal.isWaiting=false;},1000);
 }
 //##############################################################
 //##############################################################
@@ -461,38 +428,39 @@ async function createTrainerMonsterStarter(conexion,data,socketGlobal){
 //##############################################################
 //##############################################################
 async function TeamMonsterServer(socketGlobal,SockID,conexion,arrayPlayer){
+  //var player=allplayers[SockID];
   var teamArr=[];
-  var result=await checkerDB.CheckTeam(conexion,socketGlobal.userID);
+  var result=await checkerDB.CheckTeam(conexion,socketGlobal.player.userID);
   if(result.object===null){
     socketGlobal.emit("error",result.info);
-    socketGlobal.isWaiting=false;
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
     return
   }
   for(var i=0;i<result.object.length;i++){
     teamArr[i]=CreatorObjects.MonsterBasicInfo(result.object[i]);
   }
   socketGlobal.emit("teamMonsters",teamArr);
-  socketGlobal.isWaiting=false;
+  setTimeout(function(){socketGlobal.isWaiting=false;},1000);
 }
 
-async function AllMonsterServer(socketGlobal,id,conexion,arrayPlayer){
+async function AllMonsterServer(socketGlobal,id,conexion,arrayPlayer,isWaiting){
   var monstersArr=[];
-  var result=await checkerDB.CheckAllMonsters(conexion,socketGlobal.userID);
+  var result=await checkerDB.CheckAllMonsters(conexion,socketGlobal.player.userID);
   if(result.object===null){
     socketGlobal.emit("error",result.info);
-    socketGlobal.isWaiting=false;
+    isWaiting=false;
     return
   }
   for(var i=0;i<result.object.length;i++){
     monstersArr[i]=CreatorObjects.MonsterBasicInfo(result.object[i]);
   }
   socketGlobal.emit("monsters",monstersArr);
-  socketGlobal.isWaiting=false;
+  isWaiting=false;
 }
 
 async function MonsterProfileServer(socketGlobal,id,conexion,arrayPlayer,monID){
   var monArr=[];
-  var result=await checkerDB.CheckProfileMonster(conexion,socketGlobal.userID,monID)
+  var result=await checkerDB.CheckProfileMonster(conexion,socketGlobal.player.userID,monID)
   if(result.object===null){
     socketGlobal.emit("error",result.info);
     socketGlobal.isWaiting=false;
@@ -503,19 +471,19 @@ async function MonsterProfileServer(socketGlobal,id,conexion,arrayPlayer,monID){
   socketGlobal.isWaiting=false;
 }
 
-async function bagServer(socketGlobal,id,conexion,arrayPlayer){
+async function bagServer(socketGlobal,id,conexion,arrayPlayer,isWaiting){
   var itemArr=[];
-  var result=await checkerDB.checkBagGlobal(conexion,socketGlobal.userID);
+  var result=await checkerDB.checkBagGlobal(conexion,socketGlobal.player.userID);
   if(result.object===null){
     socketGlobal.emit("error",result.info);
-    socketGlobal.isWaiting=false;
+    isWaiting=false;
     return
   }
   for(var i=0;i<result.object.length;i++){
     itemArr[i]=CreatorObjects.itemInfo(result.object[i]);
   }
   socketGlobal.emit("bag",itemArr);
-  socketGlobal.isWaiting=false;
+  isWaiting=false;
 }
 
 function evolveServer(socketGlobal,id,conexion,arrayPlayer,monsterid){
@@ -569,96 +537,18 @@ function evolveServerStart(socketGlobal,id,conexion,arrayPlayer,monsterid,monste
 }
 
 
-function wildMonsterServer(socketGlobal,id,conexion,arrayPlayer,index,map){//--Ya no sirve reemplazado!
-  var mon=0;
-  var indx=0;
-  var stringspawn="";
-  //console.log("This monster is for battle: "+index);
-    Object.keys(map.spawnMonsters).forEach((spawns)=>{
-      if(map.spawnMonsters[spawns].monsters[index]===undefined){
-        mon=false;//NO EXISTE MONSTER EN EL MAPA DEL PLAYER
-      }
-      else{
-        //return true;//SI EXISTE MONSTER EN EL MAPA DEL PLAYER
-        if(map.spawnMonsters[spawns].monsters[index].rival!==null)mon=false;//existe pero ya tiene rival
-        else{
-          mon=map.spawnMonsters[spawns].monsters[index];
-          indx=index;
-          stringspawn=spawns.toString();
-        }
-      }
-    });
-  if(mon===false || mon===0)console.log("No se encontró monster en el mapa o ya tiene rival");
-  else{
-    socketGlobal.wildMonster=mon;
-    socketGlobal.wildMonster.index=indx;
-    socketGlobal.wildMonster.spawn=stringspawn;
-    socketGlobal.wildMonster.rival=arrayPlayer.username;
-    var dataUser={special:mon.especial,num:mon.monid,name:mon.name,level:mon.level,index:index};
-    var dataAll={index:index,state:"ocupado",x:arrayPlayer.userX,y:arrayPlayer.userY,z:arrayPlayer.userZ};
-    socketGlobal.emit("wildMonInfo",dataUser);
-    socketGlobal.broadcast.to(socketGlobal.mapCode).emit('wildMonUpdateMap',dataAll);
-    
-    //roomsGame[socketGlobal.mapCode].playerAction(socketGlobal.userID,data,socketGlobal)
-  }
-}
-
-
-function battleWildMonsterServer(socketGlobal,id,conexion,arrayPlayer,index){//--Ya no sirve reemplazado!
-  //console.log(socketGlobal.wildMonster.rival);
-  if(socketGlobal.wildMonster===null);//No estas en contacto con ningun monster
-  if(socketGlobal.wildMonster.rival!==arrayPlayer.username);//no eres el rival
-  if(socketGlobal.wildMonster.rival===arrayPlayer.username){
-    //socketGlobal.enemys.push(socketGlobal.wildMonster.index);
-    var data={num:socketGlobal.wildMonster.monid,special:socketGlobal.wildMonster.especial,name:socketGlobal.wildMonster.name,level:socketGlobal.wildMonster.level};
-    socketGlobal.emit("battleWildMonInfo",{dataWild:data,inBattle:true});//cambiar dataWild
-    socketGlobal.broadcast.to(socketGlobal.mapCode).emit('OtherPlayerInWildBattle',{playerID:socketGlobal.userID,inBattle:true,index:index});
-  }
-}
-
-function WildMonsterBattleOff(socketGlobal,ap){//--Ya no sirve reemplazado!
-  if(socketGlobal.wildMonster===null)return;//no hay monster
-  else{
-    socketGlobal.wildMonster.rival=null;
-    socketGlobal.wildMonster.inBattle=false;
-    var dataAll={index:socketGlobal.wildMonster.index,state:"libre",x:ap.userX,y:ap.userY,z:ap.userZ};
-    socketGlobal.broadcast.to(socketGlobal.mapCode).emit('wildMonUpdateMap',dataAll);
-  }
-}
 //##############################################################
 //##############################################################
 //####################ESCENA WILDBATTLEMONSTER##################
 //##############################################################
 //##############################################################
-async function startPlayerWildBattle(data,socketGlobal,id,conexion){
-  roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].inBattle=true;//entra en batalla
-  var partysGame=data;
-  var teamArr=[];
-  var monWild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon;
-  monWild.battlePartyID=monWild.monster_id;
-  //var monParty=monWild.battlePartyID
-  var owner=monWild.monster_id;
-  roomsBattle[socketGlobal.battleMap].setPartysNpcs(socketGlobal);
-  roomsBattle[socketGlobal.battleMap].setPartysPlayers(partysGame,socketGlobal);
-  //var wildResult=await roomsBattle[socketGlobal.battleMap].addMonster(monWild,owner);
-  var teamResult=await checkerDB.CheckTeam(conexion,socketGlobal.userID);
-  if(teamResult.object===null){
-    socketGlobal.emit("error",teamResult.info);
-    socketGlobal.isWaiting=false;
-    return
-  }
-  for(var i=0;i<teamResult.object.length;i++){
-    teamArr[i]=CreatorObjects.MonsterBasicInfo(teamResult.object[i]);
-  }
-  socketGlobal.emit("WildBattleStart",{team:teamArr});
-  //socketGlobal.emit("WildBattleStart",{team:teamArr,wild:monWild});
-  //socketGlobal.emit("WildBattleStart",{team:teamArr,wild:wildResult});
-  //socketGlobal.emit("WildBattleStart",roomsBattle[socketGlobal.battleMap].players);
-  socketGlobal.isWaiting=false;
+function startPlayerWildBattle(data,socketGlobal,SockID,conexion){//data esta vacio
+  roomsGame[socketGlobal.player.mapCode].startWildBattleMap(socketGlobal,conexion,roomsBattle);
 }
 
-function FinishPlayerWildBattle(socketGlobal,status,conexion){
-  var monWild=roomsGame[socketGlobal.mapCode].players[socketGlobal.userID].wildMon;
+function FinishPlayerWildBattle(socketGlobal,SockID,status,conexion){
+  var player=allplayers[SockID];
+  var monWild=roomsGame[player.mapCode].players[player.userID].wildMon;
   //if(monWild===null){return;}//no hay monster
   //if(monWild.currHealth>0){return;}//no esta muerto
   console.log(status);
@@ -667,7 +557,7 @@ function FinishPlayerWildBattle(socketGlobal,status,conexion){
   if(status="Wild_Die"){
     var exp=1;
     //destruir al pokemon salvaje-------------
-    roomsGame[socketGlobal.mapCode].monsterMapDefeat(socketGlobal);
+    roomsGame[socketGlobal.mapCode].monsterMapDefeat(player,socketGlobal);
     //dar exp al pokemon player---------------
     sqlFuncs.GiveExpMonSQL(socketGlobal,conexion,exp)//.then((result)=>{});
     socketGlobal.monBattleID=null;
@@ -688,8 +578,9 @@ function FinishPlayerWildBattle(socketGlobal,status,conexion){
 //FUNCIONES GLOBALES PARA TODO EL SERVIDOR
 //########################################
 //########################################
-function startPlayer(data,id,socketGlobal){
-  roomsGame[socketGlobal.mapCode].playerJoin(socketGlobal.userID,data,socketGlobal);
+async function startPlayer(data,SockID,socketGlobal){
+  var player=allplayers[SockID];
+  roomsGame[player.mapCode].playerJoin(player,data,socketGlobal);
 }
 
 function ValueIsString(variable){

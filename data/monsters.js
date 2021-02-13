@@ -12,6 +12,7 @@ monsters.monster[0]={
   type_1:11,
   type_2:0,
   stats:{
+    exp:64,//exp base que da un pokemon al ser derrotado
     ps:45,
     atk:49,
     def:49,
@@ -33,11 +34,12 @@ monsters.monster[0]={
 };
 monsters.monster[1]={
   monstername:"Bulbasaur",
-  altura:1.6,
+  altura:2,
   categoria:"A",
   type_1:12,
   type_2:17,
   stats:{
+    exp:64,
     ps:45,
     atk:49,
     def:49,
@@ -76,11 +78,12 @@ monsters.monster[1]={
 };
 monsters.monster[2]={
   monstername:"Ivysaur",
-  altura:1.6,
+  altura:2.5,
   categoria:"A",
   type_1:12,
   type_2:17,
   stats:{
+    exp:142,
     ps:60,
     atk:62,
     def:63,
@@ -119,11 +122,12 @@ monsters.monster[2]={
 };
 monsters.monster[3]={
   monstername:"Venusaur",
-  altura:1.6,
+  altura:2.5,
   categoria:"A",
   type_1:12,
   type_2:17,
   stats:{
+    exp:236,
     ps:80,
     atk:82,
     def:83,
@@ -161,11 +165,12 @@ monsters.monster[3]={
 };
 monsters.monster[4]={
   monstername:"Charmander",
-  altura:1.3,
+  altura:2,
   categoria:"A",
   type_1:7,
   type_2:0,
   stats:{
+    exp:62,
     ps:39,
     atk:52,
     def:43,
@@ -200,11 +205,12 @@ monsters.monster[4]={
 };
 monsters.monster[5]={
   monstername:"Charmeleon",
-  altura:1.6,
+  altura:2.5,
   categoria:"A",
   type_1:7,
   type_2:0,
   stats:{
+    exp:142,
     ps:58,
     atk:64,
     def:58,
@@ -239,11 +245,12 @@ monsters.monster[5]={
 };
 monsters.monster[6]={
   monstername:"Charizard",
-  altura:1.6,
+  altura:2.5,
   categoria:"A",
   type_1:7,
   type_2:18,
   stats:{
+    exp:240,
     ps:78,
     atk:84,
     def:78,
@@ -283,11 +290,12 @@ monsters.monster[6]={
 };
 monsters.monster[7]={
   monstername:"Squirtle",
-  altura:1.3,
+  altura:2,
   categoria:"A",
   type_1:2,
   type_2:0,
   stats:{
+    exp:63,
     ps:44,
     atk:48,
     def:65,
@@ -324,11 +332,12 @@ monsters.monster[7]={
 };
 monsters.monster[8]={
   monstername:"Wartortle",
-  altura:1.6,
+  altura:2.5,
   categoria:"A",
   type_1:2,
   type_2:0,
   stats:{
+    exp:142,
     ps:59,
     atk:63,
     def:80,
@@ -365,11 +374,12 @@ monsters.monster[8]={
 };
 monsters.monster[9]={
   monstername:"Blastoise",
-  altura:1.6,
+  altura:2.5,
   categoria:"A",
   type_1:2,
   type_2:0,
   stats:{
+    exp:239,
     ps:78,
     atk:83,
     def:100,
@@ -406,11 +416,12 @@ monsters.monster[9]={
 };
 monsters.monster[10]={
   monstername:"Caterpie",
-  altura:0.5,
+  altura:1.5,
   categoria:"D",
   type_1:3,
   type_2:0,
   stats:{
+    exp:39,
     ps:45,
     atk:30,
     def:35,

@@ -1,4 +1,5 @@
 var turnactions={};
+var Utils = require('../lib/utils.js');
 var exports = module.exports = turnactions;
 //*************************************************
 //*************************************************
@@ -11,35 +12,75 @@ turnactions.newMovement= function(allactions){
     console.log("SE EJECUTA EL PRIMER MOVIMIENTO");
   });
 };
-turnactions.checkAllReady= function(playersObj){
-  return new Promise((resolve,reject)=>{
-    var ready=true;
-    Object.keys(playersObj).find((id)=>{
-      console.log("CHECK ALL READY BATTLE TURN ACTIONS: "+playersObj[id].turn);
-      if(playersObj[id].turn===true){
-        ready=false;
-      }
-    });
-    resolve(ready);
+turnactions.checkAllReady= function(players,npcs){
+  var ready=true;
+  Object.keys(players).find((id)=>{
+    if(players[id].turn===true)ready=false;
   });
-};
-/*
-turnactions.CheckAllMonsters= function(conexion,userid){
-  return new Promise((resolve,reject)=>{
-    var sqlMons = "SELECT * FROM monsters WHERE user_current_owner = '"+userid+"'";
-    conexion.query(sqlMons, function (err, result) {
-      if (err) resolve({object:null,info:"ERROR DESCONOCIDO EN CHECK MONSTERS."});
-      resolve({object:result,info:"SUCCESS"});
-    });
+  Object.keys(npcs).find((id)=>{
+    if(npcs[id].turn===true)ready=false;
   });
+  return ready;
 };
-turnactions.CheckProfileMonster= function(conexion,userid,monid){
-  return new Promise((resolve,reject)=>{
-    var sqlMon = "SELECT * FROM monsters WHERE user_current_owner = '"+userid+"' AND monster_id = '"+monid+"'";
-    conexion.query(sqlMon, function (err, result) {
-      if (err) resolve({object:null,info:"ERROR DESCONOCIDO EN PROFILE MONSTER."});
-      resolve({object:result,info:"SUCCESS"});
-    });
+//*************************************************
+//*************************************************
+//|||||||||||||||||||NPC|||||||||||||||||||||||||||
+//*************************************************
+//*************************************************
+turnactions.npcSelectAttack= function(npcBattle,focus){
+  var num = Utils.ranInt(1,4);
+  var result={};
+  if(npcBattle.fieldBattle.monster["mov_1"].pp===0 && npcBattle.fieldBattle.monster["mov_2"].pp===0 && npcBattle.fieldBattle.monster["mov_3"].pp===0 && npcBattle.fieldBattle.monster["mov_4"].pp===0){
+    console.log("USAR FORCEJEO YA NO LE QUEDAN PPS");  
+    result={
+      type:"movement",
+      id:0,
+      ally:{
+        name:npcBattle.fieldBattle.monster.battlePartyName,
+        num:npcBattle.fieldBattle.monster.battlePartyNum,
+      },
+      enemy:{
+        name:focus.fieldBattle.monster.battlePartyName,
+        num:focus.fieldBattle.monster.battlePartyNum,
+      },
+    };
+    return result;
+  }
+  else if(npcBattle.fieldBattle.monster["mov_"+num].pp!==null && npcBattle.fieldBattle.monster["mov_"+num].pp>0){
+    result={
+      type:"movement",
+      id:num,
+      ally:{
+        name:npcBattle.fieldBattle.monster.battlePartyName,
+        num:npcBattle.fieldBattle.monster.battlePartyNum,
+      },
+      enemy:{
+        name:focus.fieldBattle.monster.battlePartyName,
+        num:focus.fieldBattle.monster.battlePartyNum,
+      },
+    };
+    return result;
+  }
+  else if(npcBattle.fieldBattle.monster["mov_"+num].pp===null || npcBattle.fieldBattle.monster["mov_"+num].pp<=0){
+    this.npcSelectAttack(npcBattle);
+  }
+};
+
+turnactions.npcSelectRival= function(npcTeam,players,npcs){
+  var focus=null;
+  var founded=false;
+  Object.keys(players).forEach(function(id){
+    if(npcTeam!==players[id].battlePartyName && players[id].fieldBattle.monster!==null && founded===false){
+      focus=players[id];
+      founded=true;
+    }
   });
+  Object.keys(npcs).forEach(function(id){
+    if(npcTeam!==npcs[id].battlePartyName && players[id].fieldBattle.monster!==null && founded===false){
+      focus=npcs[id];
+      founded=true;
+    }
+  });
+  console.log(focus.user_name);
+  return focus;
 };
-*/

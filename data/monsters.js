@@ -54,7 +54,7 @@ monsters.monster[1]={
   evo:{
     nivel:16,
     object:0,
-    in:2,
+    in:2,//que sea un array combiene mas para poder poner machos y hembras
   },
   //array de movimientos: [id,name,lvlneed,modo]
   //modos: lvlup,mt-mo,tutor,breed,evento

@@ -32,7 +32,7 @@ maps.world[1]={
     [0]:{
       arrayMonster:[1,4,7,10],
       arrayLevelMonster:[1,7],
-      qtyMonster:3,
+      qtyMonster:1,
     }
   },
   maxPlayers:50,

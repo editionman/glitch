@@ -98,6 +98,7 @@ moves[0]={
   sucesivo:{min:2,max:2},//cantidad minima y maxima de golpes por turno ejemplo si es 5---de 1 a 5;
   condition:{},//condicion que tiene el ataque para que suceda---> se analiza primero al realizar el ataque
   turnos:{},//cuando tiene mas de un turno entra en MovimientoActivo hasta que acaben sus turnos que pueden ser desde min hasta el max de turnos, si esta vacio el turno es basico de 1
+  prioridad:0,//la prioridad que tiene de atacar primero
 }
 moves[1]={
   name:"Pound",
@@ -1011,6 +1012,24 @@ moves[54]={
   maxpp:30,
   precision:10,
   effect:{allchangestats:false,turnos:5},
+  contact:1,
+  prioridad:0,
+  sucesivo:{},
+  condition:{},
+  turnos:{},
+}
+//...............................
+moves[165]={
+  name:"Struggle",
+  type:11,
+  categoria:"atk1",
+  probabilidad_critico:0.0625,
+  critico:1.5,
+  potencia:50,
+  pp:1,
+  maxpp:1,
+  precision:10,
+  effect:{dmgback:0.25},//25% del daño provocado al rival
   contact:1,
   prioridad:0,
   sucesivo:{},

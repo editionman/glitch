@@ -155,7 +155,8 @@ io.sockets.on('connection', function(socket){
 		startPlayer(data,id,socketPlayer);
 	});
   socket.on('newMsg',(data)=>{
-      var userN = roomsGame[socketPlayer.mapCode].players[socketPlayer.userID].username;
+      var userN = roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID].user_name;
+      var catLevel=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID].categoria; 
       var msg = data.msg;
       var date=new Date();
       var fecha={
@@ -163,15 +164,24 @@ io.sockets.on('connection', function(socket){
         minuto:date.getMinutes(),
         dia: basicFunctions.NameDay(date.getDay())
       } 
-      socketPlayer.broadcast.to(socketPlayer.mapCode).emit('newMsg', {sender:userN,nivel:roomsGame[socketPlayer.mapCode].players[socketPlayer.userID].categoria,msg:msg,date:fecha});
-      socket.emit('newMsg', {sender:userN,nivel:roomsGame[socketPlayer.mapCode].players[socketPlayer.userID].categoria,msg:msg,date:fecha});
+      socketPlayer.broadcast.to(socketPlayer.player.mapCode).emit('newMsg', {sender:userN,nivel:catLevel,msg:msg,date:fecha});
+      socket.emit('newMsg', {sender:userN,nivel:catLevel,msg:msg,date:fecha});
 
 	});
+  //ACTIONS
   socket.on('action',(data)=>{
     if(data.type=="movement"){
       roomsGame[socketPlayer.player.mapCode].playerAction(data,socketPlayer);
-      //socketGlobal.broadcast.to(player.mapCode).emit('playerAction',{player:roomsGame[player.mapCode].players[player.userID],type:'movement',state:roomsGame[player.mapCode].players[player.userID].animStatus});
     }
+	});
+  socket.on('wildaction',(data)=>{
+    if(data.type=="movement"){
+      roomsGame[socketPlayer.player.mapCode].wildMonsterAction(data,socketPlayer);
+    }
+	});
+  socket.on('chooseMonster',(data)=>{
+    var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
+    roomsGame[socketPlayer.player.mapCode].createMonsterBattle(socketPlayer,conexion,data);
 	});
   socket.on('teamMonsters',(data)=>{
     var player=allplayers[id];
@@ -186,7 +196,7 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
       if(socketPlayer.isWaiting===false){
         socketPlayer.isWaiting=true;
         AllMonsterServer(socketPlayer,id,conexion,ap,socketPlayer.isWaiting);
@@ -198,7 +208,7 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
       MonsterProfileServer(socketPlayer,id,conexion,ap,data);
     }
 	});
@@ -207,7 +217,7 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
       if(socketPlayer.isWaiting===false){
         socketPlayer.isWaiting=true;
         bagServer(socketPlayer,id,conexion,ap,socketPlayer.isWaiting);
@@ -219,17 +229,16 @@ io.sockets.on('connection', function(socket){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
-      var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+      var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
       evolveServer(socketPlayer,id,conexion,ap,data.monid);
     }
 	});
   socket.on('evolveMonsterStart',(data)=>{
-    var ap=roomsGame[socketPlayer.mapCode].players[socketPlayer.userID];
+    var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
     evolveServerStart(socketPlayer,id,conexion,ap,data.monid,data.monnum);
 	});
   socket.on('wildMonsterSelect',(data)=>{
-    var player=allplayers[id];
-    roomsGame[player.mapCode].monsterSelectBattle(data,player,socketPlayer);
+    roomsGame[socketPlayer.player.mapCode].monsterSelectBattle(data,socketPlayer.player,socketPlayer);
 	});
   socket.on('battleWildMonster',(monID)=>{//ACA SE ENVIA LA DATA PARA CAMBIAR BATALLA 
     roomsGame[socketPlayer.player.mapCode].changeWildBattleMap(socketPlayer,roomsBattle,monID);
@@ -257,7 +266,7 @@ io.sockets.on('connection', function(socket){
   //En escena NPC
   //##############################################################################################
   socket.on('npcSelect',(data)=>{
-    roomsGame[socketPlayer.mapCode].NPCDialog(conexion,socketPlayer,data.npcID,data.guid);
+    roomsGame[socketPlayer.player.mapCode].NPCDialog(conexion,socketPlayer,data.npcID,data.guid);
 	});
   //##############################################################################################
   //En escena WILDBATTLE
@@ -489,10 +498,12 @@ async function bagServer(socketGlobal,id,conexion,arrayPlayer,isWaiting){
 
 function evolveServer(socketGlobal,id,conexion,arrayPlayer,monsterid){
   var itemArr=[];
-	var sqlMon = "SELECT * FROM monsters WHERE monster_id = '"+monsterid+"' AND user_current_owner ='"+arrayPlayer.userID+"'";
+  console.log(monsterid);
+	var sqlMon = "SELECT * FROM monsters WHERE monster_id = '"+monsterid+"' AND user_current_owner ='"+socketGlobal.player.userID+"'";
   conexion.query(sqlMon, function (err, result) {
 		if(result!=undefined){
-      var res=monsters.monster(result[0].monster_num);
+      //console.log(result);
+      var res=monsters.monster[result[0].monster_num];
       socketGlobal.emit("evolveInfo",{evo:res.evo,id:monsterid,special:result[0].special,num:result[0].monster_num,evolved:false});
 		}
 		else{
@@ -504,17 +515,17 @@ function evolveServer(socketGlobal,id,conexion,arrayPlayer,monsterid){
 }
 function evolveServerStart(socketGlobal,id,conexion,arrayPlayer,monsterid,monsternum){
   var itemArr=[];
-  var itemReq="SELECT * FROM items WHERE item_num = '"+monsters.monster(monsternum).evo.object+"' AND user_owner ='"+arrayPlayer.userID+"'";
-	var sqlMon = "SELECT * FROM monsters WHERE monster_id = '"+monsterid+"' AND user_current_owner ='"+arrayPlayer.userID+"';";
-  sqlMon+=(monsters.monster(monsternum).evo.object>0)?itemReq:"";
+  var itemReq="SELECT * FROM items WHERE item_num = '"+monsters.monster[monsternum].evo.object+"' AND user_owner ='"+socketGlobal.player.userID+"'";
+	var sqlMon = "SELECT * FROM monsters WHERE monster_id = '"+monsterid+"' AND user_current_owner ='"+socketGlobal.player.userID+"';";
+  sqlMon+=(monsters.monster[monsternum].evo.object>0)?itemReq:"";
   conexion.query(sqlMon, function (err, result) {
 		if(result!=undefined || result[0][0]!=undefined && result[1][0]!=undefined){
-      var resMon=(result.length>1)?monsters.monster(result[0][0].monster_num):monsters.monster(result[0].monster_num);
+      var resMon=(result.length>1)?monsters.monster[result[0][0].monster_num]:monsters.monster[result[0].monster_num];
       var resHabilidad=(result.length>1)?result[0][0].habilidad:result[0].habilidad;
       var resSpecial=(result.length>1)?result[0][0].special:result[0].special;
       var resNivel=(result.length>1)?nivelMonster(result[0][0].exp):nivelMonster(result[0].exp);
       var resItem=(result.length>1 && result[1].length>0)?result[1][0]:null;
-      var resEvo=monsters.monster(resMon.evo.in);//trae todos los datos del monster al que evoluciona
+      var resEvo=monsters.monster[resMon.evo.in];//trae todos los datos del monster al que evoluciona
       var itemUpd=(resItem!==null)?"UPDATE items SET item_qty = '"+(resItem.item_qty-1)+"' WHERE item_id ='"+resItem.item_id+"'":"";
       var itemDel=(resItem!==null)?"DELETE FROM items WHERE item_id='"+resItem.item_id+"'":"";
       var sqlMonEvo = (resNivel>=resMon.evo.nivel && resMon.evo.object===0 || resNivel>=resMon.evo.nivel && resItem!==null)?"UPDATE monsters SET monster_num='"+resMon.evo.in+"',monster_name='"+resEvo.monstername+"',type_1='"+resEvo.type_1+"',type_2='"+resEvo.type_2+"',habilidad='"+monsters.changeHabilidad(resHabilidad,resEvo.habilidades)+"'"+" WHERE monster_id ='"+monsterid+"';":"";

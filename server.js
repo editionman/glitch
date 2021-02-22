@@ -179,6 +179,12 @@ io.sockets.on('connection', function(socket){
       roomsGame[socketPlayer.player.mapCode].wildMonsterAction(data,socketPlayer);
     }
 	});
+  socket.on('trainerMonsterAction',(data)=>{
+    if(data.type=="movement"){
+      roomsGame[socketPlayer.player.mapCode].trainerMonsterAction(data,socketPlayer);
+    }
+	});
+  //
   socket.on('chooseMonster',(data)=>{
     var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
     roomsGame[socketPlayer.player.mapCode].createMonsterBattle(socketPlayer,conexion,data);

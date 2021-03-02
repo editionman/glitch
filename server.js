@@ -15,8 +15,9 @@ var roomsBattle={};
    
 // where your node app starts
 var basicFunctions = require("./basicFunctions.js");
+var timeServerEntity = require("./data/timeWorld.js");
 var uuid = require("uuid");
-
+ 
 var moves = require("./data/moves.js");
 var npcs = require("./data/npcs.js");
 
@@ -64,11 +65,8 @@ var gameState={
 	clima: 'sunny'
 };
  
-var tiempo={
-	hora: null,
-	minuto: null,
-	segundo: null
-};
+var timeServer=new timeServerEntity();
+//setInterval(()=>{console.log(timeServer.current.segundo)},1000);
 // ##########################################################################################################
 // ##########################################################################################################
 // ##########################################################################################################
@@ -285,7 +283,13 @@ io.sockets.on('connection', function(socket){
 	});
   socket.on('WildBattleStatus',(data)=>{
     FinishPlayerWildBattle(socket,id,data.status,conexion);
-  });  
+  });
+  //##############################################################################################
+  //En escena GLOBAL Batalla
+  //##############################################################################################
+  socket.on('SendAtk',(data)=>{//data.id,coldown,lastTime
+    roomsGame[socketPlayer.player.mapCode].createAtkMonster(socketPlayer,data);
+	});
   //##############################################################################################
   //En DESCONEXION
   //##############################################################################################
@@ -382,7 +386,7 @@ async function LoginSQL(conexion,data,SockID,socketGlobal){
   socketGlobal.player=allplayers[SockID];
   var player=socketGlobal.player;
   if(roomsGame[player.mapCode]==undefined){//No existe mapa
-    roomsGame[player.mapCode]=new worldMap(player.mapCode);//creado
+    roomsGame[player.mapCode]=new worldMap(player.mapCode,timeServer);//creado
     roomsGame[player.mapCode].createMonsters();//CREATE MONSTERS
     roomsGame[player.mapCode].createNPCS();//CREATE NPCS
     roomsGame[player.mapCode].players[player.userID]=userGame;//PONIENDO AL  PLAYER EN MAPA
@@ -394,7 +398,7 @@ async function LoginSQL(conexion,data,SockID,socketGlobal){
 //Register con base de datos
 //###############################
 async function RegisterSQL(conexion,data,socketGlobal){
-  const result=await creatorDB.registerSQL(conexion,data);
+  const result=await creatorDB.registerSQL(conexion,data);//aca no llega object
   if(result.object===null){
     socketGlobal.emit("registerInfo",result.info);
     setTimeout(function(){socketGlobal.isWaiting=false;},1000);
@@ -637,4 +641,3 @@ function DeletePlayerInRoom(user){
 //ATRIBUTOS DE MONSTERS
 //######################################
 //##########################
-

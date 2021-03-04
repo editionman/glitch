@@ -166,7 +166,7 @@ io.sockets.on('connection', function(socket){
       socket.emit('newMsg', {sender:userN,nivel:catLevel,msg:msg,date:fecha});
 
 	});
-  //ACTIONS
+  //ACTIONS-
   socket.on('action',(data)=>{
     if(data.type=="movement"){
       roomsGame[socketPlayer.player.mapCode].playerAction(data,socketPlayer);
@@ -182,7 +182,15 @@ io.sockets.on('connection', function(socket){
       roomsGame[socketPlayer.player.mapCode].trainerMonsterAction(data,socketPlayer);
     }
 	});
+  socket.on('moveAction',(data)=>{
+    if(data.type=="movement"){
+      roomsGame[socketPlayer.player.mapCode].moveAction(data,socketPlayer);
+    }
+	});
   //
+  socket.on('moveContact',(data)=>{
+    roomsGame[socketPlayer.player.mapCode].moveContact(data,socketPlayer);
+	});
   socket.on('chooseMonster',(data)=>{
     var ap=roomsGame[socketPlayer.player.mapCode].players[socketPlayer.player.userID];
     roomsGame[socketPlayer.player.mapCode].createMonsterBattle(socketPlayer,conexion,data);

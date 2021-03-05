@@ -117,6 +117,7 @@ moves[1]={
   condition:{onMovimientoActivo:{19:"Vuelo"},potencia:0},//cuando se esta usando estos ataques quitará 0 realizar a todos los movs
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[2]={
   name:"Karate Chop",
@@ -135,6 +136,7 @@ moves[2]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[3]={
   name:"Double Slap",
@@ -153,6 +155,7 @@ moves[3]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[4]={
   name:"Comet Punch",
@@ -171,6 +174,7 @@ moves[4]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[5]={
   name:"Mega Punch",
@@ -189,6 +193,7 @@ moves[5]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[6]={
   name:"Pay Day",
@@ -207,6 +212,7 @@ moves[6]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[7]={
   name:"Fire Punch",
@@ -225,6 +231,7 @@ moves[7]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[8]={
   name:"Ice Punch",
@@ -243,6 +250,7 @@ moves[8]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[9]={
   name:"Thunder Punch",
@@ -261,6 +269,7 @@ moves[9]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[10]={
   name:"Scratch",
@@ -279,6 +288,7 @@ moves[10]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[11]={
   name:"Vice Grip",
@@ -297,6 +307,7 @@ moves[11]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[12]={
   name:"Guillotine",
@@ -315,6 +326,7 @@ moves[12]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[13]={
   name:"Razor Wind",
@@ -333,6 +345,7 @@ moves[13]={
   condition:{wait:1},
   turnos:{min:2,max:2},//espera el primer turno y ataca el segundo
   coldown:1,
+  life:1,
 }
 moves[14]={
   name:"Swords Dance",
@@ -351,6 +364,7 @@ moves[14]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[15]={
   name:"Cut",
@@ -369,6 +383,7 @@ moves[15]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[16]={
   name:"Gust",
@@ -387,6 +402,7 @@ moves[16]={
   condition:{onMovimientoActivo:{19:"Fly",340:"Bounce",507:"Sky Drop"},potencia:1.5},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[17]={
   name:"Wing Attack",
@@ -405,6 +421,7 @@ moves[17]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[18]={
   name:"Whirlwind",
@@ -423,6 +440,7 @@ moves[18]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[19]={
   name:"Fly",
@@ -441,6 +459,7 @@ moves[19]={
   condition:{wait:1},
   turnos:{min:2,max:2},
   coldown:1,
+  life:1,
 }
 moves[20]={
   name:"Bind",
@@ -459,6 +478,7 @@ moves[20]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[21]={
   name:"Slam",
@@ -477,6 +497,7 @@ moves[21]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[22]={
   name:"Vine Whip",
@@ -495,6 +516,7 @@ moves[22]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[23]={
   name:"Stomp",
@@ -513,6 +535,7 @@ moves[23]={
   condition:{onMovimientoActivo:{107:"Minimize"},potencia:2,precision:10},//si esta usando reduccion el rival ignora su evasion
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[24]={
   name:"Double Kick",
@@ -531,6 +554,7 @@ moves[24]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[25]={
   name:"Mega Kick",
@@ -549,6 +573,7 @@ moves[25]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[26]={
   name:"Jump Kick",
@@ -567,6 +592,7 @@ moves[26]={
   condition:{fail:true,maxhp:0.5},//si falla el usuario recibe el vidamaxima*0.5 de daño de su vida maxima, osea reduce 50% de su vida maxima
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[27]={
   name:"Rolling Kick",
@@ -585,6 +611,7 @@ moves[27]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[28]={
   name:"Sand Attack",
@@ -603,6 +630,7 @@ moves[28]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[29]={
   name:"Headbutt",
@@ -621,6 +649,7 @@ moves[29]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[30]={
   name:"Horn Attack",
@@ -639,6 +668,7 @@ moves[30]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[31]={
   name:"Fury Attack",
@@ -657,6 +687,7 @@ moves[31]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[32]={
   name:"Horn Drill",
@@ -675,6 +706,7 @@ moves[32]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[33]={
   name:"Tackle",
@@ -693,6 +725,7 @@ moves[33]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[34]={
   name:"Body Slam",
@@ -711,6 +744,7 @@ moves[34]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[35]={
   name:"Wrap",
@@ -729,6 +763,7 @@ moves[35]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[36]={
   name:"Take Down",
@@ -747,6 +782,7 @@ moves[36]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[37]={
   name:"Thrash",
@@ -765,6 +801,7 @@ moves[37]={
   condition:{},
   turnos:{min:2,max:3},
   coldown:1,
+  life:1,
 }
 moves[38]={
   name:"Double Edge",
@@ -783,6 +820,7 @@ moves[38]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[39]={
   name:"Tail Whip",
@@ -801,6 +839,7 @@ moves[39]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[40]={
   name:"Poison Sting",
@@ -819,6 +858,7 @@ moves[40]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[41]={
   name:"Twineedle",
@@ -837,6 +877,7 @@ moves[41]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[42]={
   name:"Pin Missile",
@@ -855,6 +896,7 @@ moves[42]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[43]={
   name:"Leer",
@@ -873,6 +915,7 @@ moves[43]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[44]={
   name:"Bite",
@@ -891,6 +934,7 @@ moves[44]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[45]={
   name:"Growl",
@@ -909,6 +953,7 @@ moves[45]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[46]={
   name:"Roar",
@@ -927,6 +972,7 @@ moves[46]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[47]={
   name:"Sing",
@@ -945,6 +991,7 @@ moves[47]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[48]={
   name:"Supersonic",
@@ -963,6 +1010,7 @@ moves[48]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[49]={
   name:"Sonic Boom",
@@ -981,6 +1029,7 @@ moves[49]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[50]={
   name:"Disable",
@@ -999,6 +1048,7 @@ moves[50]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[51]={
   name:"Acid",
@@ -1017,6 +1067,7 @@ moves[51]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[52]={
   name:"Ember",
@@ -1035,6 +1086,7 @@ moves[52]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[53]={
   name:"Flamethrower",
@@ -1053,6 +1105,7 @@ moves[53]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 moves[54]={
   name:"Mist",
@@ -1071,6 +1124,7 @@ moves[54]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 //...............................
 moves[165]={
@@ -1090,6 +1144,7 @@ moves[165]={
   condition:{},
   turnos:{},
   coldown:1,
+  life:1,
 }
 //-------------------------FIN---------------------
 var exports = module.exports = moves;

@@ -66,7 +66,7 @@ var cantidadMax=5;
   //         unstatus:bool counter:bool absorb:true allchangestats:false
   //###################################################################
   //###################################################################
-
+  //CONTACTO||| Que hace en contacto, por ejemplo se destruye envenena,congela,quema
   /*ataques movimientos
   22-latigo sepa Vine Whip
   33-Placaje tackle
@@ -98,7 +98,10 @@ moves[0]={
   sucesivo:{min:2,max:2},//cantidad minima y maxima de golpes por turno ejemplo si es 5---de 1 a 5;
   condition:{},//condicion que tiene el ataque para que suceda---> se analiza primero al realizar el ataque
   turnos:{},//cuando tiene mas de un turno entra en MovimientoActivo hasta que acaben sus turnos que pueden ser desde min hasta el max de turnos, si esta vacio el turno es basico de 1
+  //-------------ESTO ES NECESARIO EN BATTLE PARA REALTIME
   coldown:1,//tiempo de espera para usar la skill de nuevo
+  life:1,//vida del ataque
+  destroyable:true,//--Si se destruye al contacto
 }
 moves[1]={
   name:"Pound",
@@ -118,6 +121,7 @@ moves[1]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[2]={
   name:"Karate Chop",
@@ -137,6 +141,7 @@ moves[2]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[3]={
   name:"Double Slap",
@@ -156,6 +161,7 @@ moves[3]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[4]={
   name:"Comet Punch",
@@ -175,6 +181,7 @@ moves[4]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[5]={
   name:"Mega Punch",
@@ -194,6 +201,7 @@ moves[5]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[6]={
   name:"Pay Day",
@@ -213,6 +221,7 @@ moves[6]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[7]={
   name:"Fire Punch",
@@ -232,6 +241,7 @@ moves[7]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[8]={
   name:"Ice Punch",
@@ -251,6 +261,7 @@ moves[8]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[9]={
   name:"Thunder Punch",
@@ -270,6 +281,7 @@ moves[9]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[10]={
   name:"Scratch",
@@ -289,6 +301,7 @@ moves[10]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[11]={
   name:"Vice Grip",
@@ -308,6 +321,7 @@ moves[11]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[12]={
   name:"Guillotine",
@@ -327,6 +341,7 @@ moves[12]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[13]={
   name:"Razor Wind",
@@ -346,6 +361,7 @@ moves[13]={
   turnos:{min:2,max:2},//espera el primer turno y ataca el segundo
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[14]={
   name:"Swords Dance",
@@ -365,6 +381,7 @@ moves[14]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[15]={
   name:"Cut",
@@ -384,6 +401,7 @@ moves[15]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[16]={
   name:"Gust",
@@ -403,6 +421,7 @@ moves[16]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[17]={
   name:"Wing Attack",
@@ -422,6 +441,7 @@ moves[17]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[18]={
   name:"Whirlwind",
@@ -441,6 +461,7 @@ moves[18]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[19]={
   name:"Fly",
@@ -460,6 +481,7 @@ moves[19]={
   turnos:{min:2,max:2},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[20]={
   name:"Bind",
@@ -479,6 +501,7 @@ moves[20]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[21]={
   name:"Slam",
@@ -498,6 +521,7 @@ moves[21]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[22]={
   name:"Vine Whip",
@@ -517,6 +541,7 @@ moves[22]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[23]={
   name:"Stomp",
@@ -536,6 +561,7 @@ moves[23]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[24]={
   name:"Double Kick",
@@ -555,6 +581,7 @@ moves[24]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[25]={
   name:"Mega Kick",
@@ -574,6 +601,7 @@ moves[25]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[26]={
   name:"Jump Kick",
@@ -593,6 +621,7 @@ moves[26]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[27]={
   name:"Rolling Kick",
@@ -612,6 +641,7 @@ moves[27]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[28]={
   name:"Sand Attack",
@@ -631,6 +661,7 @@ moves[28]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[29]={
   name:"Headbutt",
@@ -650,6 +681,7 @@ moves[29]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[30]={
   name:"Horn Attack",
@@ -669,6 +701,7 @@ moves[30]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[31]={
   name:"Fury Attack",
@@ -688,6 +721,7 @@ moves[31]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[32]={
   name:"Horn Drill",
@@ -707,6 +741,7 @@ moves[32]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[33]={
   name:"Tackle",
@@ -726,6 +761,7 @@ moves[33]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[34]={
   name:"Body Slam",
@@ -745,6 +781,7 @@ moves[34]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[35]={
   name:"Wrap",
@@ -764,6 +801,7 @@ moves[35]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[36]={
   name:"Take Down",
@@ -783,6 +821,7 @@ moves[36]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[37]={
   name:"Thrash",
@@ -802,6 +841,7 @@ moves[37]={
   turnos:{min:2,max:3},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[38]={
   name:"Double Edge",
@@ -821,6 +861,7 @@ moves[38]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[39]={
   name:"Tail Whip",
@@ -840,6 +881,7 @@ moves[39]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[40]={
   name:"Poison Sting",
@@ -859,6 +901,7 @@ moves[40]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[41]={
   name:"Twineedle",
@@ -878,6 +921,7 @@ moves[41]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[42]={
   name:"Pin Missile",
@@ -897,6 +941,7 @@ moves[42]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[43]={
   name:"Leer",
@@ -916,6 +961,7 @@ moves[43]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[44]={
   name:"Bite",
@@ -935,6 +981,7 @@ moves[44]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[45]={
   name:"Growl",
@@ -954,6 +1001,7 @@ moves[45]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[46]={
   name:"Roar",
@@ -973,6 +1021,7 @@ moves[46]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[47]={
   name:"Sing",
@@ -992,6 +1041,7 @@ moves[47]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[48]={
   name:"Supersonic",
@@ -1011,6 +1061,7 @@ moves[48]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[49]={
   name:"Sonic Boom",
@@ -1030,6 +1081,7 @@ moves[49]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[50]={
   name:"Disable",
@@ -1049,6 +1101,7 @@ moves[50]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[51]={
   name:"Acid",
@@ -1068,6 +1121,7 @@ moves[51]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[52]={
   name:"Ember",
@@ -1087,6 +1141,7 @@ moves[52]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[53]={
   name:"Flamethrower",
@@ -1106,6 +1161,7 @@ moves[53]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 moves[54]={
   name:"Mist",
@@ -1125,6 +1181,7 @@ moves[54]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 //...............................
 moves[165]={
@@ -1145,6 +1202,7 @@ moves[165]={
   turnos:{},
   coldown:1,
   life:1,
+  destroyable:true,
 }
 //-------------------------FIN---------------------
 var exports = module.exports = moves;

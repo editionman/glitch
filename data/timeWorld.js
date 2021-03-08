@@ -12,7 +12,7 @@ module.exports = time = cls.Class.extend({
       this.minuto= date.getMinutes();
       this.segundo= date.getSeconds();
       this.full=date.getTime();
-    },1000);
+    },50);
   },
   getDayName:function(daynum){
     return basicFunctions.NameDay(daynum);

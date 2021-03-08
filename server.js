@@ -196,7 +196,7 @@ io.sockets.on('connection', function(socket){
     roomsGame[socketPlayer.player.mapCode].createMonsterBattle(socketPlayer,conexion,data);
 	});
   socket.on('teamMonsters',(data)=>{
-    var player=allplayers[id];
+    var player=socketPlayer.player;
     var ap=roomsGame[player.mapCode].players[player.userID];
     if(socketPlayer.isWaiting===false){
       socketPlayer.isWaiting=true;
@@ -204,7 +204,7 @@ io.sockets.on('connection', function(socket){
     }
 	});
   socket.on('monsters',(data)=>{
-    if(allplayers[id]===undefined){
+    if(allplayers[socketPlayer.player.userID]===undefined){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
@@ -216,7 +216,7 @@ io.sockets.on('connection', function(socket){
     }
 	});
   socket.on('monsterProfile',(data)=>{//data=monID
-    if(allplayers[id]===undefined){
+    if(allplayers[socketPlayer.player.userID]===undefined){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
@@ -225,7 +225,7 @@ io.sockets.on('connection', function(socket){
     }
 	});
   socket.on('bag',(data)=>{
-    if(allplayers[id]===undefined){
+    if(allplayers[socketPlayer.player.userID]===undefined){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
@@ -237,7 +237,7 @@ io.sockets.on('connection', function(socket){
     }
 	});
   socket.on('evolveMonster',(data)=>{
-    if(allplayers[id]===undefined){
+    if(allplayers[socketPlayer.player.userID]===undefined){
       socket.emit("disconnect",{info:"Se ha actualizado el servidor"});
     }
     else {
@@ -302,22 +302,23 @@ io.sockets.on('connection', function(socket){
   //En DESCONEXION
   //##############################################################################################
   socket.on('disconnect',()=>{
-    //"user disconnected");
-    if(allplayers[id]!=undefined){
-      //var player=allplayers[id];
-      var player=socketPlayer.player;
-      roomsGame[player.mapCode].monsterCancelBattle(socketPlayer);
-      roomsGame[player.mapCode].playerLeft(conexion,socketPlayer);
-      delete allplayers[id];
-		}
+    DisconnectPlayer(socketPlayer,conexion);
   });
 });
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
-
-
-
+//---------------------------TERMINO LAS FUNCIONES DE SOCKET RECIBIDOS
+function DisconnectPlayer(websocket,conexion){
+  //"user disconnected");
+    if(websocket.player!==undefined && allplayers[websocket.player.userID]!=undefined){
+      //var player=allplayers[id];
+      var player=websocket.player;
+      roomsGame[player.mapCode].monsterCancelBattle(websocket);
+      roomsGame[player.mapCode].playerLeft(conexion,websocket);
+      delete allplayers[websocket.player.userID];
+		}
+}
 
 
 
@@ -390,8 +391,14 @@ async function LoginSQL(conexion,data,SockID,socketGlobal){
   }
   var user=result.object[0];
   var userGame=new plrGame(user);
-  allplayers[SockID]=CreatorObjects.PlayerServer(userGame);
-  socketGlobal.player=allplayers[SockID];
+  if(allplayers[userGame.user_id]!==undefined){
+    socketGlobal.emit("loginInfo","ESTE USUARIO YA ESTA JUGANDO");
+    setTimeout(function(){socketGlobal.isWaiting=false;},1000);
+    return
+  }
+  allplayers[userGame.user_id]=CreatorObjects.PlayerServer(userGame,SockID);
+  //allplayers[SockID]=CreatorObjects.PlayerServer(userGame);
+  socketGlobal.player=allplayers[userGame.user_id];
   var player=socketGlobal.player;
   if(roomsGame[player.mapCode]==undefined){//No existe mapa
     roomsGame[player.mapCode]=new worldMap(player.mapCode,timeServer);//creado
@@ -577,7 +584,7 @@ function startPlayerWildBattle(data,socketGlobal,SockID,conexion){//data esta va
 }
 
 function FinishPlayerWildBattle(socketGlobal,SockID,status,conexion){
-  var player=allplayers[SockID];
+  var player=socketGlobal.player;
   var monWild=roomsGame[player.mapCode].players[player.userID].wildMon;
   //if(monWild===null){return;}//no hay monster
   //if(monWild.currHealth>0){return;}//no esta muerto
@@ -609,7 +616,7 @@ function FinishPlayerWildBattle(socketGlobal,SockID,status,conexion){
 //########################################
 //########################################
 async function startPlayer(data,SockID,socketGlobal){
-  var player=allplayers[SockID];
+  var player=socketGlobal.player;
   roomsGame[player.mapCode].playerJoin(player,data,socketGlobal);
 }
 
@@ -632,14 +639,7 @@ function nivelMonster(exp){
     }
     else{return Math.round(Math.sqrt(exp));}
 }
-//Desconectar player en room
-function DeletePlayerInRoom(user){
-	Object.keys(allplayers).forEach((id)=>{
-		if(allplayers[id].userID==user.userID){
-			delete allplayers[id];
-		}
-	});
-}
+
 //setInterval(function(){console.log(Object.keys(gameState.players).length);},3000);
 //Object.keys(objeto).length)--------------------------->longitud de un object
 //gameState.players[0]==players.userID

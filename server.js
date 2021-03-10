@@ -296,7 +296,7 @@ io.sockets.on('connection', function(socket){
   //En escena GLOBAL Batalla
   //##############################################################################################
   socket.on('SendAtk',(data)=>{//data.id,coldown,lastTime
-    roomsGame[socketPlayer.player.mapCode].createAtkMonster(socketPlayer,data);
+    if(socketPlayer.player)roomsGame[socketPlayer.player.mapCode].createAtkMonster(socketPlayer,data);
 	});
   //##############################################################################################
   //En DESCONEXION

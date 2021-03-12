@@ -122,7 +122,8 @@ io.sockets.on('connection', function(socket){
       }
     }
     else{
-      var infoLog="Ingrese un usuario y password válidos";
+      //Ingrese un usuario y password válidos
+      var infoLog="Please enter a user and password valids, no use specials characters";
 			socket.emit("loginInfo",infoLog);
     }
   });
@@ -133,7 +134,8 @@ io.sockets.on('connection', function(socket){
         RegisterSQL(conexion,data,socketPlayer);
       }
     }else{
-      var infoReg="Ingrese un usuario, email y password válidos";
+      //Ingrese un usuario, email y password válidos
+      var infoReg="Please enter a user, email and password valids, no use specials characters";
 			socket.emit("registerInfo",infoReg);
     }
   });

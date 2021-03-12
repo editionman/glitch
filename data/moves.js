@@ -761,7 +761,7 @@ moves[33]={
   turnos:{},
   coldown:1,
   life:1,
-  destroyable:true,
+  destroyable:false,
 }
 moves[34]={
   name:"Body Slam",

@@ -16,7 +16,7 @@ maps.world[0]={
     [0]:{
       arrayMonster:[1,4,7],//ids de monstruos spameables
       arrayLevelMonster:[1,7],//ids de nivel de monsters del 1 al 7
-      qtyMonster:3,//cantidad de monsters que spameara 3,
+      qtyMonster:10,//cantidad de monsters que spameara 3,
     }
     
   },
@@ -32,7 +32,7 @@ maps.world[1]={
     [0]:{
       arrayMonster:[1,4,7,10],
       arrayLevelMonster:[1,7],
-      qtyMonster:1,
+      qtyMonster:10,
     }
   },
   maxPlayers:50,

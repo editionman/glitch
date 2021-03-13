@@ -171,7 +171,7 @@ io.sockets.on('connection', function(socket){
   //ACTIONS-
   socket.on('action',(data)=>{
     if(data.type=="movement"){
-      roomsGame[socketPlayer.player.mapCode].playerAction(data,socketPlayer);
+      if(socketPlayer.player)roomsGame[socketPlayer.player.mapCode].playerAction(data,socketPlayer);
     }
 	});
   socket.on('wildaction',(data)=>{
@@ -545,17 +545,18 @@ function evolveServerStart(socketGlobal,id,conexion,arrayPlayer,monsterid,monste
   var itemReq="SELECT * FROM items WHERE item_num = '"+monsters.monster[monsternum].evo.object+"' AND user_owner ='"+socketGlobal.player.userID+"'";
 	var sqlMon = "SELECT * FROM monsters WHERE monster_id = '"+monsterid+"' AND user_current_owner ='"+socketGlobal.player.userID+"';";
   sqlMon+=(monsters.monster[monsternum].evo.object>0)?itemReq:"";
+  //console.log(sqlMon); 
   conexion.query(sqlMon, function (err, result) {
 		if(result!=undefined || result[0][0]!=undefined && result[1][0]!=undefined){
       var resMon=(result.length>1)?monsters.monster[result[0][0].monster_num]:monsters.monster[result[0].monster_num];
       var resHabilidad=(result.length>1)?result[0][0].habilidad:result[0].habilidad;
       var resSpecial=(result.length>1)?result[0][0].special:result[0].special;
-      var resNivel=(result.length>1)?nivelMonster(result[0][0].exp):nivelMonster(result[0].exp);
+      var resNivel=(result.length>1)?result[0][0].nivel:result[0].nivel;
       var resItem=(result.length>1 && result[1].length>0)?result[1][0]:null;
       var resEvo=monsters.monster[resMon.evo.in];//trae todos los datos del monster al que evoluciona
       var itemUpd=(resItem!==null)?"UPDATE items SET item_qty = '"+(resItem.item_qty-1)+"' WHERE item_id ='"+resItem.item_id+"'":"";
       var itemDel=(resItem!==null)?"DELETE FROM items WHERE item_id='"+resItem.item_id+"'":"";
-      var sqlMonEvo = (resNivel>=resMon.evo.nivel && resMon.evo.object===0 || resNivel>=resMon.evo.nivel && resItem!==null)?"UPDATE monsters SET monster_num='"+resMon.evo.in+"',monster_name='"+resEvo.monstername+"',type_1='"+resEvo.type_1+"',type_2='"+resEvo.type_2+"',habilidad='"+monsters.changeHabilidad(resHabilidad,resEvo.habilidades)+"'"+" WHERE monster_id ='"+monsterid+"';":"";
+      var sqlMonEvo = (resNivel>=resMon.evo.nivel && resMon.evo.object===0 || resNivel>=resMon.evo.nivel && resItem!==null)?"UPDATE monsters SET monster_num='"+resMon.evo.in+"',monster_name='"+resEvo.monstername+"',type_1='"+resEvo.type_1+"',type_2='"+resEvo.type_2+"',habilidad='"+Utils.changeHabilidad(resHabilidad,resEvo.habilidades)+"'"+" WHERE monster_id ='"+monsterid+"';":"";
       sqlMonEvo+=(resItem!==null && (resItem.item_qty-1)>0)?itemUpd:itemDel;
       conexion.query(sqlMonEvo, function (err, result) {
         if(result!=undefined && resNivel>=resMon.evo.nivel){

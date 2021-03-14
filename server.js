@@ -176,12 +176,12 @@ io.sockets.on('connection', function(socket){
 	});
   socket.on('wildaction',(data)=>{
     if(data.type=="movement"){
-      roomsGame[socketPlayer.player.mapCode].wildMonsterAction(data,socketPlayer);
+      if(socketPlayer.player)roomsGame[socketPlayer.player.mapCode].wildMonsterAction(data,socketPlayer);
     }
 	});
   socket.on('trainerMonsterAction',(data)=>{
     if(data.type=="movement"){
-      roomsGame[socketPlayer.player.mapCode].trainerMonsterAction(data,socketPlayer);
+      if(socketPlayer.player)roomsGame[socketPlayer.player.mapCode].trainerMonsterAction(data,socketPlayer);
     }
 	});
   socket.on('moveAction',(data)=>{

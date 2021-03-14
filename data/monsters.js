@@ -346,8 +346,8 @@ monsters.monster[8]={
     velocidad:58,
   },
   habilidades:{
-    1:[66,66],//normal
-    2:94,//oculta
+    1:[67,67],//normal
+    2:44,//oculta
   },
   evo:{
     nivel:36,
@@ -493,8 +493,9 @@ monsters.monster[12]={
     1:[14,14],//normal
     2:110,//oculta
   },
-  gigamax:{
-    /*AUN NO SE SABE*/
+  gigaevo:{
+    bool:true,
+    object:0,
   },
   movimientos:[
     [16,"Gust",1,"lvlup"],

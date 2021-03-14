@@ -9,10 +9,10 @@ monsters.monster[0]={
   monstername:"In Development",
   altura:0,
   categoria:"0",
-  type_1:11,
-  type_2:0,
+  type_1:11,//https://pokemon.fandom.com/es/wiki/Tipos_elementales
+  type_2:0,//https://pokemon.fandom.com/es/wiki/Tipos_elementales
   stats:{
-    exp:64,//exp base que da un pokemon al ser derrotado
+    exp:64,//exp base que da un pokemon al ser derrotado||||https://pokemon.fandom.com/es/wiki/Experiencia_base
     ps:45,
     atk:49,
     def:49,
@@ -434,7 +434,7 @@ monsters.monster[10]={
     2:50,//oculta
   },
   evo:{
-    nivel:36,
+    nivel:7,
     object:0,
     in:11,
   },
@@ -442,6 +442,64 @@ monsters.monster[10]={
     [33,"Tackle",1,"lvlup"],
     //[81,"String Shot",1,"lvlup"],
     //[450,"Bug Bite",9,"lvlup"],
+  ],
+  ambiente:1,
+};
+monsters.monster[11]={
+  monstername:"Metapod",
+  altura:1.5,
+  categoria:"D",
+  type_1:3,
+  type_2:0,
+  stats:{
+    exp:72,
+    ps:50,
+    atk:20,
+    def:55,
+    atk_es:25,
+    def_es:25,
+    velocidad:30,
+  },
+  habilidades:{
+    1:[61,61],//normal
+    2:61,//oculta
+  },
+  evo:{
+    nivel:10,
+    object:0,
+    in:12,
+  },
+  movimientos:[
+    [106,"Harden",1,"lvlup"],
+  ],
+  ambiente:1,
+};
+monsters.monster[12]={
+  monstername:"Butterfree",
+  altura:1.5,
+  categoria:"D",
+  type_1:3,
+  type_2:18,
+  stats:{
+    exp:178,
+    ps:60,
+    atk:45,
+    def:50,
+    atk_es:90,
+    def_es:80,
+    velocidad:70,
+  },
+  habilidades:{
+    1:[14,14],//normal
+    2:110,//oculta
+  },
+  gigamax:{
+    /*AUN NO SE SABE*/
+  },
+  movimientos:[
+    [16,"Gust",1,"lvlup"],
+    //[93,"Confusion",1,"lvlup"],
+    //[77,"Poison Powder",13,"lvlup"],
   ],
   ambiente:1,
 };

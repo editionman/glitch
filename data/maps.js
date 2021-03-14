@@ -30,7 +30,7 @@ maps.world[1]={
   ],
   areasMonsters:{
     [0]:{
-      arrayMonster:[1,4,7,10],
+      arrayMonster:[1,4,7,10,11,12],
       arrayLevelMonster:[1,7],
       qtyMonster:10,
     }
